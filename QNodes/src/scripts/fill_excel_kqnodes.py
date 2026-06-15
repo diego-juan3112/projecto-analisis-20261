@@ -38,10 +38,10 @@ from src.strategies.kqnodes import KQNodes  # <-- IMPORTACIÓN CORREGIDA
 
 # ========================= CONFIGURACIÓN =========================
 EXCEL_PATH   = SRC_DIR / ".samples" / "DatosPruebas2026_1JSME.xlsx"
-SHEET_NAME   = "22A-Elementos"
-K            = 4           
+SHEET_NAME   = "25A-Elementos "
+K            = 5
 MAX_TIME_SEG = 3000.0      
-COL_INICIO   = 16          
+COL_INICIO   = 22   # primera columna del grupo (Partición)          
 # =================================================================
 
 def letras_a_binario(letras, sistema):
