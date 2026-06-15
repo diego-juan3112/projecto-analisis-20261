@@ -55,3 +55,10 @@ dist/
 build/
 
 .log
+
+# Project-specific generated artifacts
+/README.md
+/QNodes/pyproject.toml
+/review/profiling/
+/GeoMIP/src/Method2_Dynamic_Programming_Reformulation/review/
+/GeoMIP/src/Method2_Dynamic_Programming_Reformulation/.logs/

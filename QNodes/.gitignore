@@ -206,6 +206,7 @@ src/tests/**
 /src/tests/**
 src/tests/redes.py
 src/testing/
+src/.samples/
 
 **/geometry.py
 **\geometry.py
