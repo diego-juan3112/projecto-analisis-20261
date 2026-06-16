@@ -1,0 +1,141 @@
+[
+  {
+    "red": "N10A.csv",
+    "mecanismo": "1111111111",
+    "k": 2,
+    "phi": 0.47265625,
+    "tiempo_s": 0.0389,
+    "pico_MB": 0.129,
+    "poda_fase2": {},
+    "particion": "|  A,B,C,D,E,F,G,H,J  || I | // | a,b,c,d,e,f,g,h,i,j || ∅ |"
+  },
+  {
+    "red": "N10A.csv",
+    "mecanismo": "1111111111",
+    "k": 3,
+    "phi": 0.953125,
+    "tiempo_s": 0.0552,
+    "pico_MB": 0.158,
+    "poda_fase2": {
+      "evaluados": 20,
+      "poda_cota_cero": 16,
+      "poda_parcial": 20,
+      "poda_version": 0,
+      "movimientos": 0,
+      "pasadas": 1
+    },
+    "particion": "|   B,C,D,E,F,G,H,J   | | A | | I | // | a,b,c,d,e,f,g,h,i,j | | ∅ | | ∅ |"
+  },
+  {
+    "red": "N10A.csv",
+    "mecanismo": "1111111111",
+    "k": 4,
+    "phi": 1.43359375,
+    "tiempo_s": 0.06,
+    "pico_MB": 0.16,
+    "poda_fase2": {
+      "evaluados": 30,
+      "poda_cota_cero": 21,
+      "poda_parcial": 30,
+      "poda_version": 0,
+      "movimientos": 0,
+      "pasadas": 1
+    },
+    "particion": "|    B,D,E,F,G,H,J    | | A | | C | | I | // | a,b,c,d,e,f,g,h,i,j | | ∅ | | ∅ | | ∅ |"
+  },
+  {
+    "red": "N10A.csv",
+    "mecanismo": "1111111111",
+    "k": 5,
+    "phi": 1.91796875,
+    "tiempo_s": 0.0771,
+    "pico_MB": 0.159,
+    "poda_fase2": {
+      "evaluados": 44,
+      "poda_cota_cero": 24,
+      "poda_parcial": 44,
+      "poda_version": 0,
+      "movimientos": 0,
+      "pasadas": 1
+    },
+    "particion": "|    B,D,E,F,G,J    | | H | | A | | C | | I | // | a,b,c,d,e,f,g,h,j | | i | | ∅ | | ∅ | | ∅ |"
+  },
+  {
+    "red": "N10A.csv",
+    "mecanismo": "1111111110",
+    "k": 3,
+    "phi": 0.0107421875,
+    "tiempo_s": 0.041,
+    "pico_MB": 0.132,
+    "poda_fase2": {
+      "evaluados": 18,
+      "poda_cota_cero": 16,
+      "poda_parcial": 18,
+      "poda_version": 0,
+      "movimientos": 0,
+      "pasadas": 1
+    },
+    "particion": "|  A,B,C,D,E,F,H,I  | | G | | J | // | a,b,c,d,e,f,g,h,i | | ∅ | | ∅ |"
+  },
+  {
+    "red": "N15B.csv",
+    "mecanismo": "111111111111111",
+    "k": 2,
+    "phi": 0.496246337890625,
+    "tiempo_s": 0.1394,
+    "pico_MB": 2.857,
+    "poda_fase2": {},
+    "particion": "|  A,B,C,D,E,F,G,H,I,J,L,M,N,O  || K | // | a,b,c,d,e,f,g,h,i,j,k,l,m,n,o || ∅ |"
+  },
+  {
+    "red": "N15B.csv",
+    "mecanismo": "111111111111111",
+    "k": 3,
+    "phi": 0.99310302734375,
+    "tiempo_s": 0.2402,
+    "pico_MB": 3.504,
+    "poda_fase2": {
+      "evaluados": 30,
+      "poda_cota_cero": 26,
+      "poda_parcial": 30,
+      "poda_version": 0,
+      "movimientos": 0,
+      "pasadas": 1
+    },
+    "particion": "|   A,B,C,D,E,F,H,I,J,L,M,N,O   | | G | | K | // | a,b,c,d,e,f,g,h,i,j,k,l,m,n,o | | ∅ | | ∅ |"
+  },
+  {
+    "red": "N15B.csv",
+    "mecanismo": "111111111111111",
+    "k": 4,
+    "phi": 1.49078369140625,
+    "tiempo_s": 0.3549,
+    "pico_MB": 3.591,
+    "poda_fase2": {
+      "evaluados": 45,
+      "poda_cota_cero": 36,
+      "poda_parcial": 45,
+      "poda_version": 0,
+      "movimientos": 0,
+      "pasadas": 1
+    },
+    "particion": "|    A,B,C,D,E,F,H,I,J,M,N,O    | | G | | K | | L | // | a,b,c,d,e,f,g,h,i,j,k,l,m,n,o | | ∅ | | ∅ | | ∅ |"
+  },
+  {
+    "red": "N20A.csv",
+    "mecanismo": "11111111111111111111",
+    "k": 3,
+    "phi": 0.9983196258544922,
+    "tiempo_s": 11.1015,
+    "pico_MB": null,
+    "poda_fase2": {
+      "evaluados": 40,
+      "poda_cota_cero": 36,
+      "poda_parcial": 40,
+      "poda_version": 0,
+      "movimientos": 0,
+      "pasadas": 1
+    },
+    "particion": "|   A,B,C,D,E,F,G,H,I,L,M,N,O,P,Q,R,S,T   | | J | | K | // | a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t | | ∅ | | ∅ |"
+  }
+]

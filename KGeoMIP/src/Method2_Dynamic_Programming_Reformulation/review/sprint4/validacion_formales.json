@@ -1,0 +1,288 @@
+{
+  "monotonia": [
+    {
+      "red": "N5A.csv",
+      "alcance": "11111",
+      "mecanismo": "11111",
+      "phi_2_5": [
+        0.0,
+        0.0,
+        0.25,
+        0.75
+      ],
+      "monotono": true
+    },
+    {
+      "red": "N5B.csv",
+      "alcance": "11111",
+      "mecanismo": "01111",
+      "phi_2_5": [
+        0.125,
+        0.375,
+        0.625,
+        0.875
+      ],
+      "monotono": true
+    },
+    {
+      "red": "N6A.csv",
+      "alcance": "111111",
+      "mecanismo": "111111",
+      "phi_2_5": [
+        0.4375,
+        0.90625,
+        1.390625,
+        1.90625
+      ],
+      "monotono": true
+    },
+    {
+      "red": "N6A.csv",
+      "alcance": "101011",
+      "mecanismo": "111111",
+      "phi_2_5": [
+        0.40625,
+        0.484375,
+        0.890625,
+        1.0
+      ],
+      "monotono": true
+    },
+    {
+      "red": "N8A.csv",
+      "alcance": "11111111",
+      "mecanismo": "11111111",
+      "phi_2_5": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "monotono": true
+    },
+    {
+      "red": "N10A.csv",
+      "alcance": "1111111111",
+      "mecanismo": "1111111111",
+      "phi_2_5": [
+        0.47265625,
+        0.953125,
+        1.43359375,
+        1.91796875
+      ],
+      "monotono": true
+    },
+    {
+      "red": "N10A.csv",
+      "alcance": "1111111111",
+      "mecanismo": "1010101010",
+      "phi_2_5": [
+        0.015625,
+        0.040039062,
+        0.077148438,
+        0.127929688
+      ],
+      "monotono": true
+    },
+    {
+      "red": "N15B.csv",
+      "alcance": "111111111111111",
+      "mecanismo": "111111111111111",
+      "phi_2_5": [
+        0.496246338,
+        0.993103027,
+        1.490783691,
+        1.989440918
+      ],
+      "monotono": true
+    },
+    {
+      "red": "N15B.csv",
+      "alcance": "110110110110110",
+      "mecanismo": "101010101010101",
+      "phi_2_5": [
+        0.006591797,
+        0.014770508,
+        0.02935791,
+        0.048248291
+      ],
+      "monotono": true
+    }
+  ],
+  "invariancia": [
+    {
+      "red": "N5A.csv",
+      "mecanismo": "11111",
+      "k": 2,
+      "phi_base": 0.0,
+      "permutaciones": [
+        {
+          "pi": [
+            4,
+            3,
+            2,
+            1,
+            0
+          ],
+          "phi": 0.0,
+          "misma_phi": true,
+          "misma_composicion": true
+        },
+        {
+          "pi": [
+            2,
+            3,
+            0,
+            4,
+            1
+          ],
+          "phi": 0.0,
+          "misma_phi": true,
+          "misma_composicion": true
+        }
+      ]
+    },
+    {
+      "red": "N5A.csv",
+      "mecanismo": "11111",
+      "k": 3,
+      "phi_base": 0.0,
+      "permutaciones": [
+        {
+          "pi": [
+            4,
+            3,
+            2,
+            1,
+            0
+          ],
+          "phi": 0.0,
+          "misma_phi": true,
+          "misma_composicion": true
+        },
+        {
+          "pi": [
+            4,
+            3,
+            0,
+            1,
+            2
+          ],
+          "phi": 0.0,
+          "misma_phi": true,
+          "misma_composicion": true
+        }
+      ]
+    },
+    {
+      "red": "N6A.csv",
+      "mecanismo": "111111",
+      "k": 2,
+      "phi_base": 0.4375,
+      "permutaciones": [
+        {
+          "pi": [
+            5,
+            4,
+            3,
+            2,
+            1,
+            0
+          ],
+          "phi": 0.4375,
+          "misma_phi": true,
+          "misma_composicion": true
+        },
+        {
+          "pi": [
+            5,
+            0,
+            4,
+            2,
+            3,
+            1
+          ],
+          "phi": 0.4375,
+          "misma_phi": true,
+          "misma_composicion": true
+        }
+      ]
+    },
+    {
+      "red": "N6A.csv",
+      "mecanismo": "111111",
+      "k": 3,
+      "phi_base": 0.484375,
+      "permutaciones": [
+        {
+          "pi": [
+            5,
+            4,
+            3,
+            2,
+            1,
+            0
+          ],
+          "phi": 0.484375,
+          "misma_phi": true,
+          "misma_composicion": true
+        },
+        {
+          "pi": [
+            4,
+            2,
+            1,
+            3,
+            0,
+            5
+          ],
+          "phi": 0.484375,
+          "misma_phi": true,
+          "misma_composicion": true
+        }
+      ]
+    },
+    {
+      "red": "N10A.csv",
+      "mecanismo": "1111111110",
+      "k": 2,
+      "phi_base": 0.0048828125,
+      "permutaciones": [
+        {
+          "pi": [
+            9,
+            8,
+            7,
+            6,
+            5,
+            4,
+            3,
+            2,
+            1,
+            0
+          ],
+          "phi": 0.0048828125,
+          "misma_phi": true,
+          "misma_composicion": true
+        },
+        {
+          "pi": [
+            9,
+            2,
+            1,
+            3,
+            4,
+            8,
+            5,
+            6,
+            7,
+            0
+          ],
+          "phi": 0.0048828125,
+          "misma_phi": true,
+          "misma_composicion": true
+        }
+      ]
+    }
+  ]
+}

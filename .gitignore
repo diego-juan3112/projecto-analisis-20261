@@ -1,16 +1,22 @@
+# =============================================================
+# .gitignore - Proyecto KGeoMIP
+# Rutas con barra normal "/" (git no interpreta "\" como separador).
+# =============================================================
+
+# -------------------------------------------------------------
 # Python
+# -------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 build/
-develop-eggs/
 dist/
+develop-eggs/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -23,21 +29,22 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Virtual environments
+# -------------------------------------------------------------
+# Entornos virtuales
+# -------------------------------------------------------------
+.venv/
 venv/
 ENV/
 env/
-.venv
 
-# uv
+# -------------------------------------------------------------
+# uv (gestor de entorno). uv.lock SI se versiona (reproducibilidad).
+# -------------------------------------------------------------
 .uv/
-uv.lock
 
-# CPython
-.pyc
-.pyo
-
-# IDE
+# -------------------------------------------------------------
+# IDE / Editor / SO
+# -------------------------------------------------------------
 .vscode/
 .idea/
 *.swp
@@ -45,13 +52,57 @@ uv.lock
 *~
 .DS_Store
 
-# Testing
+# -------------------------------------------------------------
+# Pruebas / cobertura
+# -------------------------------------------------------------
 .pytest_cache/
+.ruff_cache/
 .coverage
 htmlcov/
 
-# Distribution
-dist/
-build/
+# -------------------------------------------------------------
+# Logs (directorios .logs/ y cualquier *.log)
+# -------------------------------------------------------------
+*.log
+**/.logs/
 
-.log
+# -------------------------------------------------------------
+# Profiling (HTML del profiler)
+# -------------------------------------------------------------
+**/review/profiling/
+
+# -------------------------------------------------------------
+# Analisis (entregable academico, no se versiona por decision)
+# -------------------------------------------------------------
+**/review/analisis/
+
+# -------------------------------------------------------------
+# Resultados generados (Excel de salida) y respaldos
+# -------------------------------------------------------------
+**/results/
+DatosPruebas2026_1.xlsx
+DatosPruebas2026_1.xlsx.bak
+DatosPruebas2026_1.xlsx.back
+
+# -------------------------------------------------------------
+# Datos pesados (TPMs). Solo se versionan fixtures pequenas (<= N10).
+# -------------------------------------------------------------
+# Todos los .npy son regenerables y enormes (N25A.npy ~3.2 GB).
+*.npy
+# CSV de muestra grandes (N15 en adelante, hasta 1.6 GB).
+# Las pequenas N3..N10 SI se versionan (oraculo de las pruebas).
+KGeoMIP/data/samples/N15*.csv
+KGeoMIP/data/samples/N20*.csv
+KGeoMIP/data/samples/N22*.csv
+KGeoMIP/data/samples/N25*.csv
+
+# -------------------------------------------------------------
+# Instrucciones del agente / configuracion local (no versionar)
+# -------------------------------------------------------------
+CLAUDE.md
+.claude/
+
+# -------------------------------------------------------------
+# Misc
+# -------------------------------------------------------------
+.dist/

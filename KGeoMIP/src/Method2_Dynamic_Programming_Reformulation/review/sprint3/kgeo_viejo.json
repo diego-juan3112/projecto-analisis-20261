@@ -1,0 +1,53 @@
+[
+  {
+    "red": "N5A.csv",
+    "mecanismo": "11111",
+    "k": 2,
+    "particion": "{'k_particiones': \"[('D',), ('A', 'B', 'C', 'E')]\"}",
+    "phi": 0.5,
+    "tiempo_s": 0.022,
+    "pico_MB": 0.066,
+    "phi_geometric": 0.0,
+    "particion_geometric": "|  A,B,C,E  || D |\n| a,b,c,d,e || ∅ |",
+    "k2_coincide_phi": false
+  },
+  {
+    "red": "N5A.csv",
+    "mecanismo": "11111",
+    "k": 3,
+    "particion": "{'k_particiones': \"[('D',), ('A', 'B', 'C'), ('E',)]\"}",
+    "phi": 1.0,
+    "tiempo_s": 0.0268,
+    "pico_MB": 0.062
+  },
+  {
+    "red": "N10A.csv",
+    "mecanismo": "1111111111",
+    "k": 2,
+    "particion": "{'k_particiones': \"[('I',), ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J')]\"}",
+    "phi": 1.46484375,
+    "tiempo_s": 1.7924,
+    "pico_MB": 4.757,
+    "phi_geometric": 0.47265625,
+    "particion_geometric": "|  A,B,C,D,E,F,G,H,J  || I |\n| a,b,c,d,e,f,g,h,i,j || ∅ |",
+    "k2_coincide_phi": false
+  },
+  {
+    "red": "N10A.csv",
+    "mecanismo": "1111111111",
+    "k": 3,
+    "particion": "{'k_particiones': \"[('I',), ('E',), ('A', 'B', 'C', 'D', 'F', 'G', 'H', 'J')]\"}",
+    "phi": 2.974609375,
+    "tiempo_s": 2.2399,
+    "pico_MB": 4.651
+  },
+  {
+    "red": "N10A.csv",
+    "mecanismo": "1111111110",
+    "k": 3,
+    "particion": "{'k_particiones': \"[('D',), ('A', 'B', 'C', 'E', 'F', 'G', 'H'), ('I',)]\"}",
+    "phi": 2.04296875,
+    "tiempo_s": 0.957,
+    "pico_MB": 1.781
+  }
+]

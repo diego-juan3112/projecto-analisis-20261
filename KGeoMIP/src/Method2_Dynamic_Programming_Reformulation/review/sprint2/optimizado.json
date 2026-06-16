@@ -1,0 +1,62 @@
+[
+  {
+    "red": "N5A.csv",
+    "descripcion": "n=5 completo",
+    "mecanismo": "11111",
+    "particion": "|  A,B,C,E  || D |\n| a,b,c,d,e || ∅ |",
+    "perdida": 0.0,
+    "tiempo_s": 0.0034549999982118607,
+    "tiempo_carga_tpm_s": 0.021241400001599686,
+    "pico_memoria_MB": 0.029770851135253906
+  },
+  {
+    "red": "N10A.csv",
+    "descripcion": "n=9 (mecanismo reducido)",
+    "mecanismo": "1111111110",
+    "particion": "| A,B,C,D,E,F,H,I,J || G |\n| a,b,c,d,e,f,g,h,i || ∅ |",
+    "perdida": 0.0048828125,
+    "tiempo_s": 0.010124000000359956,
+    "tiempo_carga_tpm_s": 0.0013199999993958045,
+    "pico_memoria_MB": 0.09834957122802734
+  },
+  {
+    "red": "N10A.csv",
+    "descripcion": "n=10 completo",
+    "mecanismo": "1111111111",
+    "particion": "|  A,B,C,D,E,F,G,H,J  || I |\n| a,b,c,d,e,f,g,h,i,j || ∅ |",
+    "perdida": 0.47265625,
+    "tiempo_s": 0.05327700000270852,
+    "tiempo_carga_tpm_s": 0.0037111999990884215,
+    "pico_memoria_MB": 0.09318161010742188
+  },
+  {
+    "red": "N15B.csv",
+    "descripcion": "n=12 (mecanismo reducido)",
+    "mecanismo": "111111111111000",
+    "particion": "| B,C,D,E,F,G,H,I,J,K,L,M,N,O || A |\n|   a,b,c,d,e,f,g,h,i,j,k,l   || ∅ |",
+    "perdida": 0.001220703125,
+    "tiempo_s": 0.03358949999892502,
+    "tiempo_carga_tpm_s": 0.0244219999985944,
+    "pico_memoria_MB": 0.653813362121582
+  },
+  {
+    "red": "N15B.csv",
+    "descripcion": "n=15 completo",
+    "mecanismo": "111111111111111",
+    "particion": "|  A,B,C,D,E,F,G,H,I,J,L,M,N,O  || K |\n| a,b,c,d,e,f,g,h,i,j,k,l,m,n,o || ∅ |",
+    "perdida": 0.496246337890625,
+    "tiempo_s": 0.18127589999858174,
+    "tiempo_carga_tpm_s": 0.03888199999710196,
+    "pico_memoria_MB": 2.8394155502319336
+  },
+  {
+    "red": "N20A.csv",
+    "descripcion": "n=20 completo",
+    "mecanismo": "11111111111111111111",
+    "particion": "|  A,B,C,D,E,F,G,H,I,K,L,M,N,O,P,Q,R,S,T  || J |\n| a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t || ∅ |",
+    "perdida": 0.4990692138671875,
+    "tiempo_s": 11.287061499999254,
+    "tiempo_carga_tpm_s": 1.8825307000006433,
+    "pico_memoria_MB": 105.98157691955566
+  }
+]
