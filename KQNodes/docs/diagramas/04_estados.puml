@@ -1,0 +1,50 @@
+@startuml estados
+title KQNodes — Diagrama de Estados (ciclo de vida)
+skinparam shadowing false
+skinparam defaultFontName Calibri
+
+[*] --> Inicializado : KQNodes.__init__()
+Inicializado --> CargandoTPM : aplicar_estrategia()
+CargandoTPM --> IteracionQueyranne : subsistema preparado
+CargandoTPM --> Error : TPM invalida / dimension incorrecta
+
+state IteracionQueyranne {
+  [*] --> PendantPairs
+  PendantPairs --> EvaluandoOraculo : por cada par candidato
+  EvaluandoOraculo --> PendantPairs : siguiente candidato
+  EvaluandoOraculo --> ExtraerCorte : mejor pendant pair encontrado
+  ExtraerCorte --> [*]
+}
+
+IteracionQueyranne --> IteracionQueyranne : i < k-1, V_res no vacio
+IteracionQueyranne --> RefinamientoDivisivo : i = k-1 completado
+
+RefinamientoDivisivo --> RefinamientoDivisivo : k-1 extracciones singleton (top-down)
+RefinamientoDivisivo --> ParticionInicial : partes = argmin(loss_queyranne, loss_divisivo)
+
+ParticionInicial --> Validando : _validar_particion()
+Validando --> Error : disjuncion / completitud / no-vacio rotos
+Validando --> Refinando : refinar = True
+Validando --> Finalizado : refinar = False
+
+state Refinando {
+  [*] --> PasadaCompleta
+  PasadaCompleta --> EvaluandoMovimiento : para cada (x, S_b)
+  EvaluandoMovimiento --> AplicandoMovimiento : perdida mejora
+  EvaluandoMovimiento --> SiguienteMovimiento : sin mejora
+  AplicandoMovimiento --> SiguienteMovimiento
+  SiguienteMovimiento --> PasadaCompleta : quedan movimientos
+  SiguienteMovimiento --> Convergido : sin mejoras en pasada
+  Convergido --> [*]
+}
+
+Refinando --> Finalizado : convergencia o max_iter alcanzado
+Finalizado --> ResultadoListo : construir Solution
+ResultadoListo --> [*]
+Error --> [*]
+
+note right of IteracionQueyranne : k-1 ejecuciones\nCosto: O(k n^3 eval)
+note right of RefinamientoDivisivo : Estrategia complementaria\nObjetivo: phi real de la k-particion
+note right of Refinando : Convergencia garantizada\n(perdida no aumenta)
+
+@enduml

@@ -111,6 +111,7 @@ class QNodes(SIA):
         self.clave_submodular = [], []
         self.memoria_delta = {}
         self.memoria_grupo_candidato = {}
+        self._memo_dist_biparticion = {}   # cache: clave_biparticion → dist_marginal union
 
         self.indices_alcance: np.ndarray
         self.indices_mecanismo: np.ndarray
@@ -356,11 +357,14 @@ class QNodes(SIA):
         idxs_alcance_union = self.clave_submodular[EFFECT]
         dims_mecanismo_union = self.clave_submodular[ACTUAL]
 
-        particion_union = self.sia_subsistema.bipartir(
-            np.array(idxs_alcance_union, dtype=np.int8),
-            np.array(dims_mecanismo_union, dtype=np.int8),
-        )
-        vector_union_marginal = particion_union.distribucion_marginal()
+        clave_union = tuple(idxs_alcance_union), tuple(dims_mecanismo_union)
+        if clave_union not in self._memo_dist_biparticion:
+            particion_union = self.sia_subsistema.bipartir(
+                np.array(idxs_alcance_union, dtype=np.int8),
+                np.array(dims_mecanismo_union, dtype=np.int8),
+            )
+            self._memo_dist_biparticion[clave_union] = particion_union.distribucion_marginal()
+        vector_union_marginal = self._memo_dist_biparticion[clave_union]
         emd_union = emd_efecto(vector_union_marginal, self.sia_dists_marginales)
 
         return emd_union, emd_delta, vector_delta_marginal

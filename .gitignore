@@ -50,6 +50,14 @@ uv.lock
 .coverage
 htmlcov/
 
+# Muestras TPM grandes (no versionar: 0.27-10.9 GB c/u)
+GeoMIP/data/samples/N20A.csv
+GeoMIP/data/samples/N22A.csv
+GeoMIP/data/samples/N25A.csv
+QNodes/src/.samples/N20A.csv
+QNodes/src/.samples/N22A.csv
+QNodes/src/.samples/N25A.csv
+
 # Distribution
 dist/
 build/

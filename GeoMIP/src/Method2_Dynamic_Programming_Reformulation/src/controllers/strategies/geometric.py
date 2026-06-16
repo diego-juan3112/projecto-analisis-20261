@@ -71,12 +71,9 @@ class GeometricSIA(SIA):
         )
 
 
-        self._flat_data = []
-        for idx, ncubo in enumerate(self.sia_subsistema.ncubos):
-            # garantías: ncubo.data.shape == (2,2,...,2)
-            # np.ravel() lo aplana. El orden ‘C’ equivale 
-            # a little-endian si tus tuples están invertidas.
-            self._flat_data.append(ncubo.data.ravel())
+        _n_dims = self.sia_subsistema.dims_ncubos.size
+        self._flat_data_2d = np.stack([ncubo.data.ravel() for ncubo in self.sia_subsistema.ncubos])
+        self._estado_powers = (2 ** np.arange(_n_dims)).astype(np.int64)
 
         self.vertices = set(presente + futuro)
         dims = self.sia_subsistema.dims_ncubos
@@ -108,7 +105,7 @@ class GeometricSIA(SIA):
         estado_final = self.estado_final
         self.idx_ncubos = list(range(len(self.sia_subsistema.indices_ncubos)))
         self.caminos: Dict[int, List[List[int]]] = {0: [estado_inicial.tolist()]}
-        self.tabla_transiciones[tuple(self.caminos[0][0]),tuple(self.caminos[0][0])] = [0.0 for _ in range(len(self.sia_subsistema.indices_ncubos))]
+        self.tabla_transiciones[tuple(self.caminos[0][0]),tuple(self.caminos[0][0])] = np.zeros(len(self.sia_subsistema.indices_ncubos))
         for nivel in range(1, len(estado_inicial)+1):
             self.calcular_costos_nivel(estado_final,nivel)
         candidatos = self.identificar_particiones_optimas()
@@ -138,10 +135,10 @@ class GeometricSIA(SIA):
                     nuevo_estado_tuple = tuple(nuevo_estado)
                     if nuevo_estado_tuple not in visitados:
                         self.caminos[nivel].append(nuevo_estado.tolist())
-                        self.calcular_costo(self.caminos[0][0],nuevo_estado.tolist(),self.idx_ncubos)
+                        self.calcular_costo(self.caminos[0][0], nuevo_estado.tolist())
                         visitados.add(nuevo_estado_tuple)
 
-    def calcular_costo(self, estado_inicial:tuple, estado_final:tuple, ncubos:list[int]):
+    def calcular_costo(self, estado_inicial: tuple, estado_final: tuple):
         """
             Funcion encargada de calcular el costo de transicion de transicion del estado inicial al estado final
             para las variables futuras definidas en ncubos
@@ -154,42 +151,24 @@ class GeometricSIA(SIA):
                   camino optimo desde i
         """
         key = tuple(estado_inicial), tuple(estado_final)
-        if key not in self.tabla_transiciones:
-            self.tabla_transiciones[key] = [None]*len(self.sia_subsistema.indices_ncubos)
+        if key in self.tabla_transiciones:
+            return
         distancia_hamming = self.hamming(estado_inicial, estado_final)
-        factor = 1/(2**distancia_hamming)
-        # index_inicial = tuple(np.array(estado_inicial)[::-1])
-        # index_final = tuple(np.array(estado_final)[::-1])
+        factor = 1.0 / (2 ** distancia_hamming)
 
+        ini_int = int(np.dot(estado_inicial, self._estado_powers))
+        fin_int = int(np.dot(estado_final,   self._estado_powers))
+        diffs = np.abs(self._flat_data_2d[:, ini_int] - self._flat_data_2d[:, fin_int])
 
-        estado_ini_int = int("".join(map(str, estado_inicial[::-1])), 2)
-        estado_fin_int = int("".join(map(str, estado_final[::-1])), 2)
-
-        # Con eso, cada flat_data[idx][...] ya te da directamente X[i] o X[j].
-        diffs = np.abs(
-            np.array([flat[estado_ini_int] for flat in self._flat_data])
-        - np.array([flat[estado_fin_int] for flat in self._flat_data])
-        )
-        self.tabla_transiciones[key] = diffs.tolist()
-        # for idx in ncubos:
-        #     self.tabla_transiciones[key][idx] = (abs(self.sia_subsistema.ncubos[idx].data[index_inicial]-self.sia_subsistema.ncubos[idx].data[index_final]))
-        
         if distancia_hamming > 1:
             for i in range(len(estado_inicial)):
                 if estado_inicial[i] != estado_final[i]:
-                    nuevo_estado = estado_final.copy()
+                    nuevo_estado = list(estado_final)
                     nuevo_estado[i] = estado_inicial[i]
-                    nuevo_estado_tuple = tuple(nuevo_estado)
-                    temp_key = tuple(estado_inicial), nuevo_estado_tuple
-                    for n in ncubos:
-                        self.tabla_transiciones[key][n] = self.tabla_transiciones[key][n] + self.tabla_transiciones[temp_key][n]
-        tmp =[]
-        for i,n in enumerate(self.tabla_transiciones[key]):
-            if n is not None:
-                tmp.append(factor * n)
-            else:
-                tmp.append(n)
-        self.tabla_transiciones[key] = tmp
+                    temp_key = tuple(estado_inicial), tuple(nuevo_estado)
+                    diffs = diffs + self.tabla_transiciones[temp_key]
+
+        self.tabla_transiciones[key] = diffs * factor
 
     def identificar_particiones_optimas(self):
         """

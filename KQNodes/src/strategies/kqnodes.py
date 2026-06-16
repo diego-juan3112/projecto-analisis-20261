@@ -1,12 +1,15 @@
+from pathlib import Path
+
 import numpy as np
 import time
 from typing import List, Callable
+from datetime import datetime
 
-from src.models.base.sia import SIA
-from src.models.core.solution import Solution
-from src.models.core.system import System
-from src.funcs.iit import emd_efecto
-from src.constants.base import COLS_IDX
+from shared_src.models.base.sia import SIA
+from shared_src.models.core.solution import Solution
+from shared_src.models.core.system import System
+from shared_src.funcs.iit import emd_efecto
+
 
 
 class KQNodes(SIA):
@@ -18,6 +21,7 @@ class KQNodes(SIA):
         k: int = 2,
         refinar: bool = True,
         verbose: bool = False,
+        max_tiempo_seg: float = 300.0,
     ):
         """Inicializa el algoritmo KQNodes.
 
@@ -26,26 +30,33 @@ class KQNodes(SIA):
             k (int): Número de particiones para k-MIP.
             refinar (bool): Si se debe aplicar refinamiento local.
             verbose (bool): Si se imprime información de ejecución.
+            max_tiempo_seg (float): Tiempo máximo por fase de Queyranne (segundos).
+                Al superarse, la fase aborta y se devuelve la mejor partición
+                parcial encontrada; self.hubo_timeout queda en True.
         """
         self.gestor = gestor
         self.k = k
         self.refinar = refinar
         self.verbose = verbose
+        # Tiempo máximo por iteración de Queyranne (segundos)
+        self.max_tiempo_seg = float(max_tiempo_seg)
+        # Indicador si se produjo un timeout durante la ejecución
+        self.hubo_timeout: bool = False
 
         self.tpm: np.ndarray = self.gestor.cargar_red()
         super().__init__(self.tpm)
 
-        self._tabla_costos: np.ndarray | None = None
+        self._memo_marginal: dict[tuple, np.ndarray] = {}
+        self._memo_perdida_final: dict[tuple, float] = {}
 
     def aplicar_estrategia(self) -> Solution:
         """Ejecuta la estrategia de k-partición y retorna la solución encontrada.
 
         Flujo orquestador:
-        1. Obtener tabla de costos T (pre-calculada o reutilizada de GeoMIP).
-        2. Ejecutar Queyranne iterativo para encontrar k particiones.
-        3. Validar que la partición es válida (disjunta, completa, no-vacía).
-        4. Si self.refinar=True, aplicar hill climbing de intercambio local.
-        5. Retornar Solution con partición, pérdida y tiempo total.
+        1. Ejecutar Queyranne iterativo para encontrar k particiones.
+        2. Validar que la partición es válida (disjunta, completa, no-vacía).
+        3. Si self.refinar=True, aplicar hill climbing de intercambio local.
+        4. Retornar Solution con partición, pérdida y tiempo total.
 
         Retorna:
             Solution: Objeto con partición óptima, pérdida y tiempo de ejecución.
@@ -56,11 +67,39 @@ class KQNodes(SIA):
         # Cronómetro de ejecución total
         t0 = time.perf_counter()
 
-        # Paso 1: Obtener tabla de costos T
-        T = self._obtener_tabla_costos()
+        # Invalidar cachés por-caso (dependen del subsistema actual)
+        self._memo_marginal = {}
+        self._memo_perdida_final = {}
 
-        # Paso 2: Ejecutar Queyranne iterativo
-        partes = self._queyranne_iterativo(T)
+        n_ss = self.sia_dists_marginales.size
+        print(f"[KQNodes] Iniciando k={self.k}, n_subsistema={n_ss}, n_tpm={int(self.tpm.shape[1])}, timestamp={datetime.now()}")
+
+        # Paso 1: Ejecutar Queyranne iterativo
+        partes_queyranne = self._queyranne_iterativo()
+
+        # Paso 2b: Refinamiento divisivo (top-down, complementario a Queyranne greedy)
+        partes_div = self._refinamiento_divisivo()
+
+        # Elegir la partición con menor pérdida entre ambos enfoques
+        loss_q = float("inf")
+        loss_d = float("inf")
+        try:
+            loss_q = self._calcular_perdida_final(partes_queyranne)
+        except Exception:
+            pass
+        try:
+            loss_d = self._calcular_perdida_final(partes_div)
+        except Exception:
+            pass
+
+        if loss_d < loss_q:
+            partes = partes_div
+            if self.verbose:
+                print(f"[KQNodes] Divisivo ({loss_d:.4f}) supera Queyranne ({loss_q:.4f}) — usando divisivo")
+        else:
+            partes = partes_queyranne
+            if self.verbose:
+                print(f"[KQNodes] Queyranne ({loss_q:.4f}) ≤ Divisivo ({loss_d:.4f}) — usando Queyranne")
 
         # Paso 3: Validar partición
         self._validar_particion(partes)
@@ -72,13 +111,34 @@ class KQNodes(SIA):
         # Paso 5: Calcular tiempo total en milisegundos
         tiempo_ms = (time.perf_counter() - t0) * 1000.0
 
-        # Evaluar pérdida final
-        perdida_final = self._evaluar_perdida_restringida(
-            frozenset(partes[0]) if partes else frozenset(),
-            frozenset(range(int(T.shape[0]))),
-            [],
-            T,
-        )
+        # Evaluar pérdida final como EMD(global, ⊗ marginals de la k-partición completa)
+        perdida_final = float("inf")
+        try:
+            if partes:
+                perdida_final = self._calcular_perdida_final(partes)
+        except Exception:
+            perdida_final = float("inf")
+
+        # Imprimir bloque final exacto para parsing externo
+        horas = tiempo_ms / 1000.0 / 3600.0
+        minutos = tiempo_ms / 1000.0 / 60.0
+        segundos = tiempo_ms / 1000.0
+
+        # Asegurar que alcance/mecanismo estén disponibles (pueden haber sido seteados en main)
+        alcance = getattr(self, "alcance", "")
+        mecanismo = getattr(self, "mecanismo", "")
+
+        particion_formateada = self._format_partition_letters(partes)
+
+        print("=== RESULTADO KQNodes ===")
+        print(f"k: {self.k}")
+        print(f"Alcance: {alcance}")
+        print(f"Mecanismo: {mecanismo}")
+        print(f"Partición: {particion_formateada}")
+        print(f"Pérdida: {perdida_final:.7f}")
+        print(f"Tiempo: Horas: {horas:.2f} = Minutos: {minutos:.1f} = Segundos: {segundos:.4f}")
+        print(f"Timeout: {'Sí' if self.hubo_timeout else 'No'}")
+        print("=== FIN RESULTADO ===")
 
         # Construir y retornar resultado
         return self._construir_resultado(partes, perdida_final, tiempo_ms)
@@ -105,46 +165,68 @@ class KQNodes(SIA):
             particion=partes,
         )
 
-    def _obtener_tabla_costos(self) -> np.ndarray:
-        """Construye la tabla de costos T que utilizará Queyranne iterativo.
+    def _calcular_perdida_final(self, partes: List[frozenset]) -> float:
+        """Calcula EMD(global, ⊗_i marginal(P_i)) para la k-partición completa.
 
-        Retorna una matriz de costos n×n donde T[i,j] representa el coste
-        de tener los nodos i y j en la misma partición (o separados).
-
-        Para simplificar, usar una matriz de identidad o basada en distancia
-        de Hamming. En versiones futuras, reutilizar tablas de GeoMIP.
-
-        Retorna:
-            np.ndarray: Matriz de costos T (n×n).
+        A diferencia de _evaluar_perdida_restringida (que evalúa una extracción
+        parcial durante Queyranne), este método recibe la partición definitiva y
+        computa la pérdida real comparando la distribución global con el producto
+        tensorial de las distribuciones marginales de cada parte.
         """
-        if self._tabla_costos is not None:
-            return self._tabla_costos
+        # K3: cache por clave de partición — evita recomputar para la misma configuración
+        _cache_key = tuple(tuple(sorted(p)) for p in sorted(partes, key=min))
+        if _cache_key in self._memo_perdida_final:
+            return self._memo_perdida_final[_cache_key]
 
-        # Número de variables
-        n = int(self.tpm.shape[1])
+        distribucion_global = self.sia_dists_marginales
+        n = distribucion_global.size
+        producto_por_variable = np.empty(n, dtype=np.float32)
+        producto_por_variable.fill(np.nan)
 
-        # Matriz de costos simple: distancia euclidiana entre columnas de TPM
-        # o matriz uniforme para prototipos
-        T = np.zeros((n, n), dtype=np.float32)
+        for parte in partes:
+            indices_local = np.array(sorted(list(parte)), dtype=np.int8)
+            indices_global = self.sia_subsistema.indices_ncubos[indices_local]
+            # K1: cache de marginal por conjunto de índices globales
+            memo_key = tuple(int(x) for x in indices_global)
+            if memo_key not in self._memo_marginal:
+                try:
+                    subsistema_parte = self.sia_subsistema.substraer(
+                        alcance_idx=np.setdiff1d(self.sia_subsistema.indices_ncubos, indices_global),
+                        mecanismo_dims=np.setdiff1d(self.sia_subsistema.dims_ncubos, indices_global),
+                    )
+                    self._memo_marginal[memo_key] = subsistema_parte.distribucion_marginal()
+                except Exception:
+                    self._memo_marginal[memo_key] = np.ones(len(parte), dtype=np.float32) / len(parte)
+            dist_parte = self._memo_marginal[memo_key]
 
-        # Llenar con distancias (por ahora, uniforme)
-        for i in range(n):
-            for j in range(n):
-                if i == j:
-                    T[i, j] = 0.0
-                else:
-                    T[i, j] = 1.0
+            if dist_parte.size != indices_local.size:
+                if self.verbose:
+                    print(f"  [calcular_perdida_final] dim mismatch parte {sorted(parte)}")
+                self._memo_perdida_final[_cache_key] = float("inf")
+                return float("inf")
+            producto_por_variable[indices_local] = dist_parte.astype(np.float32, copy=False)  # K5
 
-        self._tabla_costos = T
-        return T
+        if np.isnan(producto_por_variable).any():
+            missing = np.where(np.isnan(producto_por_variable))[0]
+            if self.verbose:
+                print(f"  [calcular_perdida_final] variables sin asignar: {missing.tolist()}")
+            self._memo_perdida_final[_cache_key] = float("inf")
+            return float("inf")
 
-    def _queyranne_iterativo(self, T: np.ndarray) -> List[frozenset]:
-        """Ejecuta el algoritmo de Queyranne iterativo sobre la matriz de costos T.
+        resultado = float(emd_efecto(
+            u=distribucion_global.astype(np.float32, copy=False),  # K5
+            v=producto_por_variable,
+        ))
+        self._memo_perdida_final[_cache_key] = resultado
+        return resultado
+
+    def _queyranne_iterativo(self) -> List[frozenset]:
+        """Ejecuta el algoritmo de Queyranne iterativo sobre el subsistema actual.
 
         Algoritmo:
         1. V_res = frozenset de todos los índices [0..n-1].
         2. Para i in 1..k-1:
-           a. define f_i(S) = _evaluar_perdida_restringida(S, V_res, partes_fijas, T)
+           a. define f_i(S) = _evaluar_perdida_restringida(S, V_res, partes_fijas)
            b. ejecuta Queyranne sobre V_res con f_i
            c. S_opt = corte de menor pérdida encontrado por Queyranne
            d. partes_fijas.append(S_opt); V_res = V_res - S_opt
@@ -158,15 +240,15 @@ class KQNodes(SIA):
             list[frozenset[int]]: lista de partes fijas que suman la partición.
         """
 
-        # Número de variables inferido desde la forma de T
-        n = int(T.shape[0])
+        # Número de variables = tamaño real del subsistema actual
+        n = self.sia_dists_marginales.size
 
         # Conjunto de variables restantes por particionar
         V_res: frozenset = frozenset(range(n))
         partes_fijas: List[frozenset] = []
 
         # Función auxiliar: implementación local de Queyranne sobre un dominio V
-        def _queyranne_on_set(V: frozenset, f: Callable[[frozenset], float]) -> frozenset:
+        def _queyranne_on_set(V: frozenset, f: Callable[[frozenset], float], t_iter_start: float) -> frozenset:
             """Implementación básica del algoritmo de Queyranne.
 
             - A representa una partición coarsened de V como lista de bloques (frozenset).
@@ -181,6 +263,14 @@ class KQNodes(SIA):
 
             # Mientras existan al menos dos bloques
             while len(A) > 1:
+                # Comprobar timeout por iteración
+                if (time.perf_counter() - t_iter_start) > self.max_tiempo_seg:
+                    # Timeout: devolver la mejor solución encontrada hasta ahora
+                    if self.verbose:
+                        print(f"  [Queyranne] timeout alcanzado tras {self.max_tiempo_seg}s, abortando fase")
+                    # Indicar al llamador que hubo timeout
+                    nonlocal_timed_out[0] = True
+                    return best_set if best_set else (A[0] if A else frozenset())
                 # Secuencia greedily construida
                 S_sequence: List[frozenset] = []
                 S_union: frozenset = frozenset()
@@ -190,10 +280,17 @@ class KQNodes(SIA):
                 for _ in range(len(A)):
                     best_a = None
                     best_gain = None
+                    val_S_union = f(S_union)  # K2: invariante dentro del loop interno
                     for a in remaining:
+                        # Comprobar timeout dentro de la construcción de secuencia
+                        if (time.perf_counter() - t_iter_start) > self.max_tiempo_seg:
+                            if self.verbose:
+                                print(f"  [Queyranne] timeout dentro de construcción de secuencia")
+                            nonlocal_timed_out[0] = True
+                            return best_set if best_set else (A[0] if A else frozenset())
                         union = frozenset(set(S_union) | set(a))
                         # ganancia marginal: f(S ∪ a) - f(S)
-                        gain = f(union) - f(S_union)
+                        gain = f(union) - val_S_union  # K2
                         if best_a is None or gain > best_gain:
                             best_a = a
                             best_gain = gain
@@ -231,13 +328,30 @@ class KQNodes(SIA):
             return best_set if best_set else (A[0] if A else frozenset())
 
         # Iterar k-1 veces para extraer k-1 partes fijas
+        # Variable compartida para indicar timeout desde el closure
+        nonlocal_timed_out = [False]
+
         for i in range(1, max(1, self.k)):
+            # Print de iteración solicitado
+            print(f"[KQNodes] Iteración {i}/{self.k-1}, |V_res|={len(V_res)}")
             # f_i: función objetivo restringida que recibe un subconjunto S
             def f_i(S: frozenset) -> float:
-                return self._evaluar_perdida_restringida(S, V_res, partes_fijas, T)
+                return self._evaluar_perdida_restringida(S, V_res, partes_fijas)
 
-            # Ejecutar Queyranne sobre V_res con f_i
-            S_opt = _queyranne_on_set(V_res, f_i)
+            # Ejecutar Queyranne sobre V_res con f_i (respetando timeout por iteración)
+            t_iter_start = time.perf_counter()
+            S_opt = _queyranne_on_set(V_res, f_i, t_iter_start)
+
+            # Si el closure indicó timeout, propagar y salir
+            if nonlocal_timed_out[0]:
+                self.hubo_timeout = True
+                if self.verbose:
+                    print(f"[KQNodes] Iteración {i} abortada por timeout. Devolviendo partición parcial.")
+                # Añadir la parte extraída si no vacía
+                if S_opt:
+                    partes_fijas.append(frozenset(S_opt))
+                    V_res = frozenset(set(V_res) - set(S_opt))
+                break
 
             # Asegurar tipo frozenset
             S_opt = frozenset(S_opt)
@@ -258,6 +372,59 @@ class KQNodes(SIA):
         if V_res:
             partes_fijas.append(V_res)
 
+        # Si no alcanzamos k partes, dividir iterativamente las partes más grandes
+        # hasta llegar a k (o no poder dividir más).
+        # Nueva heurística: priorizar extracción de singletons (elementos individuales)
+        # desde la parte más grande, porque suele ser la forma más rápida de
+        # aumentar el número de partes y garantizar que se alcance exactamente k.
+        while len(partes_fijas) < self.k:
+            # seleccionar la parte más grande con tamaño > 1
+            sizes = [(idx, len(p)) for idx, p in enumerate(partes_fijas)]
+            candidates = [idx for idx, sz in sizes if sz > 1]
+            if not candidates:
+                # no hay partes divisibles
+                break
+            # elegir la parte con mayor tamaño
+            j = max(candidates, key=lambda i: len(partes_fijas[i]))
+            parte_a_dividir = partes_fijas.pop(j)
+
+            V_local = frozenset(parte_a_dividir)
+            otras_partes = partes_fijas.copy()
+
+            # Heurística preferida: extraer el singleton que minimice la pérdida
+            best_e = None
+            best_loss = float("inf")
+            for e in sorted(list(V_local)):
+                loss = self._evaluar_perdida_restringida(frozenset([e]), V_local, otras_partes)
+                if loss < best_loss:
+                    best_loss = loss
+                    best_e = e
+
+            # Si no se encontró singleton válido (improbable), intentar dividir vía Queyranne
+            if best_e is None:
+                # intentar dividir vía Queyranne local como último recurso
+                def f_local(S: frozenset) -> float:
+                    return self._evaluar_perdida_restringida(S, V_local, otras_partes)
+
+                t_split_start = time.perf_counter()
+                S_opt = _queyranne_on_set(V_local, f_local, t_split_start)
+                if nonlocal_timed_out[0]:
+                    self.hubo_timeout = True
+                    partes_fijas.append(V_local)
+                    break
+                S_opt = frozenset(S_opt)
+                if not S_opt or S_opt == V_local:
+                    partes_fijas.append(V_local)
+                    break
+                complemento = frozenset(set(V_local) - set(S_opt))
+                partes_fijas.append(S_opt)
+                partes_fijas.append(complemento)
+            else:
+                S_opt = frozenset([best_e])
+                complemento = frozenset(set(V_local) - set(S_opt))
+                partes_fijas.append(S_opt)
+                partes_fijas.append(complemento)
+
         return partes_fijas
 
     def _evaluar_perdida_restringida(
@@ -265,7 +432,6 @@ class KQNodes(SIA):
         S: frozenset,
         V_res: frozenset,
         partes_fijas: List[frozenset],
-        T: np.ndarray,
     ) -> float:
         """Calcula la pérdida restringida de una partición parcial.
 
@@ -288,7 +454,6 @@ class KQNodes(SIA):
             S (frozenset): Nueva parte candidata a evaluar.
             V_res (frozenset): Conjunto de variables restantes por particionar.
             partes_fijas (List[frozenset]): Partes ya fijadas en iteraciones previas.
-            T (np.ndarray): Matriz de costos (n×n), pre-calculada.
 
         Returns:
             float: Pérdida (EMD) asociada a la partición parcial.
@@ -297,7 +462,6 @@ class KQNodes(SIA):
             S = frozenset({0})
             V_res = frozenset({0, 1, 2})
             partes_fijas = []
-            T = array 3x3
 
             complemento = V_res - S = {1, 2}
             P(S) = distribucion_marginal({0})
@@ -328,36 +492,52 @@ class KQNodes(SIA):
         distribuciones_partes: List[np.ndarray] = []
 
         for parte in partes_a_combinar:
-            # Convertir frozenset a array para indexación
-            indices_parte = np.array(sorted(list(parte)), dtype=np.int8)
+            indices_local = np.array(sorted(list(parte)), dtype=np.int8)
+            indices_global = self.sia_subsistema.indices_ncubos[indices_local]
+            # K1: cache de marginal por conjunto de índices globales
+            memo_key = tuple(int(x) for x in indices_global)
+            if memo_key not in self._memo_marginal:
+                try:
+                    subsistema_parte = self.sia_subsistema.substraer(
+                        alcance_idx=np.setdiff1d(self.sia_subsistema.indices_ncubos, indices_global),
+                        mecanismo_dims=np.setdiff1d(self.sia_subsistema.dims_ncubos, indices_global),
+                    )
+                    self._memo_marginal[memo_key] = subsistema_parte.distribucion_marginal()
+                except Exception:
+                    self._memo_marginal[memo_key] = np.ones(len(parte), dtype=np.float32) / len(parte)
+            distribuciones_partes.append(self._memo_marginal[memo_key])
 
-            # Para esta parte, crear un subsistema restringido
-            # (aquí asumimos que self.sia_subsistema ya está preparado)
-            # y obtener su distribución marginal
-            try:
-                # Usar el subsistema del SIA para marginalizar a la parte específica
-                subsistema_parte = self.sia_subsistema.substraer(
-                    alcance_idx=np.setdiff1d(self.sia_subsistema.indices_ncubos, indices_parte),
-                    mecanismo_dims=np.setdiff1d(self.sia_subsistema.dims_ncubos, indices_parte),
-                )
-                dist_parte = subsistema_parte.distribucion_marginal()
-            except Exception:
-                # Si la marginalización falla, usar una distribución uniforme
-                dist_parte = np.ones(len(parte), dtype=np.float32) / len(parte)
+        # Construir un vector de probabilidades por variable.
+        # Usar el tamaño del subsistema (coincide con sia_dists_marginales.size).
+        n = self.sia_dists_marginales.size
+        producto_por_variable = np.empty(n, dtype=np.float32)
+        producto_por_variable.fill(np.nan)
 
-            distribuciones_partes.append(dist_parte)
+        # Rellenar las posiciones con las marginals de cada parte
+        for parte, dist_parte in zip(partes_a_combinar, distribuciones_partes):
+            indices_parte = np.array(sorted(list(parte)), dtype=np.int64)
+            if dist_parte.size != indices_parte.size:
+                # Falla: caída segura a infinito si las dimensiones no coinciden
+                if self.verbose:
+                    print(
+                        f"  [eval_perdida] dist_parte.size ({dist_parte.size}) != indices_parte.size ({indices_parte.size}) -> inf"
+                    )
+                return float("inf")
+            producto_por_variable[indices_parte] = dist_parte.astype(np.float32)
 
-        # Producto tensorial (Kronecker) de las distribuciones
-        # Para distribuciones independientes: P(S1,S2,...) = P(S1) ⊗ P(S2) ⊗ ...
-        producto_tensorial = distribuciones_partes[0].copy()
-        for dist in distribuciones_partes[1:]:
-            producto_tensorial = np.kron(producto_tensorial, dist)
+        # Si quedaron posiciones sin asignar, completar con la distribución global
+        # (no ideal, pero evita NaNs). También registra en verbose.
+        if np.isnan(producto_por_variable).any():
+            if self.verbose:
+                missing = np.where(np.isnan(producto_por_variable))[0]
+                print(f"  [eval_perdida] faltan variables {missing}, rellenando con global")
+            producto_por_variable[np.isnan(producto_por_variable)] = (
+                distribucion_global[np.isnan(producto_por_variable)]
+            )
 
-        # Calcular la EMD (Earth Mover's Distance) entre las distribuciones
-        # Usar emd_efecto que ya está optimizado para este propósito
         perdida = emd_efecto(
-            u=distribucion_global.astype(np.float32),
-            v=producto_tensorial.astype(np.float32),
+            u=distribucion_global.astype(np.float32, copy=False),  # K5
+            v=producto_por_variable,
         )
 
         if self.verbose:
@@ -366,6 +546,70 @@ class KQNodes(SIA):
             )
 
         return float(perdida)
+
+    def _index_to_letter(self, idx: int) -> str:
+        if idx < 26:
+            return chr(ord("A") + idx)
+        else:
+            return chr(ord("a") + (idx - 26) % 26)
+
+    def _format_partition_letters(self, partes: List[frozenset]) -> str:
+        # Convierte una lista de frozensets en '{A,B} | {C,D}'
+        if not partes:
+            return "{}"
+        grupos = []
+        for parte in partes:
+            items = sorted(list(parte))
+            if not items:
+                grupos.append("{}")
+                continue
+            letras = [self._index_to_letter(int(i)) for i in items]
+            grupos.append("{" + ",".join(letras) + "}")
+        return " | ".join(grupos)
+
+    def _refinamiento_divisivo(self) -> List[frozenset]:
+        """Construye una k-partición de forma divisiva (top-down).
+
+        Algoritmo:
+        1. Parte inicial: el conjunto completo de nodos del subsistema como una sola parte.
+        2. En cada uno de los k-1 pasos, evalúa extraer cada nodo individual de cada
+           parte existente como una nueva parte propia.
+        3. Escoge la extracción que produce la menor pérdida total (_calcular_perdida_final).
+        4. Repite hasta tener k partes.
+
+        Complejidad: O((k-1) · n_ss · eval_perdida_final).
+
+        Ventaja frente a Queyranne puro: la función objetivo en cada paso es la
+        pérdida FINAL de la k-partición completa, no una estimación parcial.
+        Esto evita el sesgo greedy de la iteración 1 de Queyranne (que optimiza
+        solo la bipartición sin considerar las iteraciones siguientes).
+        """
+        n_ss = self.sia_dists_marginales.size
+        partes: List[frozenset] = [frozenset(range(n_ss))]
+
+        for _ in range(self.k - 1):
+            mejor_loss = float("inf")
+            mejor_partes: List[frozenset] | None = None
+
+            for idx, parte in enumerate(partes):
+                if len(parte) <= 1:
+                    continue
+                otras = partes[:idx] + partes[idx + 1:]
+                for x in sorted(parte):
+                    candidato = otras + [frozenset([x]), parte - {x}]
+                    try:
+                        loss = self._calcular_perdida_final(candidato)
+                    except Exception:
+                        loss = float("inf")
+                    if loss < mejor_loss:
+                        mejor_loss = loss
+                        mejor_partes = candidato
+
+            if mejor_partes is None:
+                break
+            partes = mejor_partes
+
+        return partes
 
     def _intercambio_local(self, partes: List[frozenset]) -> List[frozenset]:
         """Realiza un intercambio local (hill climbing) para mejorar la partición inicial.
@@ -394,14 +638,7 @@ class KQNodes(SIA):
         max_iteraciones = max(n * self.k, 100)  # límite de iteraciones
 
         # Evaluar pérdida inicial de toda la partición
-        T = self._obtener_tabla_costos()
-        V_todas = frozenset(range(n))
-        perdida_inicial = sum(
-            self._evaluar_perdida_restringida(
-                p, V_todas, [], T
-            )
-            for p in partes_actuales
-        )
+        perdida_inicial = self._calcular_perdida_final(partes_actuales)
 
         if self.verbose:
             print(f"[intercambio_local] inicio con pérdida={perdida_inicial:.6f}")
@@ -441,12 +678,7 @@ class KQNodes(SIA):
                             else:
                                 partes_candidatas.append(partes_actuales[i])
 
-                        perdida_candidata = sum(
-                            self._evaluar_perdida_restringida(
-                                p, V_todas, [], T
-                            )
-                            for p in partes_candidatas
-                        )
+                        perdida_candidata = self._calcular_perdida_final(partes_candidatas)
 
                         # Si hay mejora, aplicar movimiento
                         if perdida_candidata < perdida_inicial - 1e-9:  # tolerancia numérica
@@ -512,9 +744,9 @@ class KQNodes(SIA):
                     )
                 elementos_vistos.add(elem)
 
-        # Validar completitud
+        # Validar completitud contra el tamaño real del subsistema
         union_partes = frozenset(elementos_vistos)
-        n = int(self.tpm.shape[COLS_IDX])
+        n = self.sia_dists_marginales.size
         esperados = frozenset(range(n))
         if union_partes != esperados:
             faltantes = esperados - union_partes
@@ -544,7 +776,7 @@ class KQNodes(SIA):
 
 if __name__ == "__main__":
     from pathlib import Path
-    from src.controllers.manager import Manager
+    from shared_src.controllers.manager import Manager
 
     sample_path = Path(__file__).resolve().parents[2] / "QNodes" / "src" / ".samples"
     gestor = Manager("1000", ruta_base=sample_path)

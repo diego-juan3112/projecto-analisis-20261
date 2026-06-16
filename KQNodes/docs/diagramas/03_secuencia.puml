@@ -1,0 +1,57 @@
+@startuml secuencia
+title KQNodes — Diagrama de Secuencia (flujo de aplicar_estrategia)
+skinparam shadowing false
+skinparam defaultFontName Calibri
+
+actor Usuario
+participant "main.py" as Main
+participant "Gestor" as Gestor
+participant "KQNodes" as KQ
+participant "iit.py\n(emd_efecto)" as Metrics
+participant "Solution" as Result
+
+Usuario -> Main : ejecutar(tpm, k=3)
+Main -> Gestor : __init__(estado_inicial)
+Main -> KQ : __init__(gestor, k=3, refinar=True)
+Main -> KQ : sia_preparar_subsistema(...)
+Main -> KQ : aplicar_estrategia()
+
+group Fase 1 — Queyranne iterativo (k-1 veces)
+  loop i = 1 hasta k-1
+    KQ -> KQ : _queyranne(V_res, f_i)
+    loop Pendant pairs
+      KQ -> Metrics : emd_efecto(global, parcial)
+      Metrics --> KQ : perdida f_i(S)
+    end
+    KQ -> KQ : extraer S_opt, actualizar V_res
+  end
+  KQ -> KQ : agregar V_res como ultima parte
+end
+
+group Fase 2 — Refinamiento divisivo (top-down) y comparacion
+  KQ -> KQ : _refinamiento_divisivo()
+  loop k-1 extracciones singleton
+    KQ -> Metrics : emd_efecto(global, producto de marginales)
+    Metrics --> KQ : _calcular_perdida_final(candidato)
+  end
+  KQ -> KQ : partes = argmin(loss_queyranne, loss_divisivo)
+end
+
+group Fase 3 — Refinamiento local (hill climbing)
+  loop Hasta convergencia
+    loop Cada variable x, cada parte S_b
+      KQ -> Metrics : emd_efecto(global, con_movimiento)
+      Metrics --> KQ : perdida si se mueve x
+      alt Hay mejora
+        KQ -> KQ : mover x de S_a a S_b
+      end
+    end
+  end
+end
+
+KQ -> Result : Solution(estrategia, perdida, distribuciones, particion, tiempo)
+Result --> KQ : solution
+KQ --> Main : Solution
+Main --> Usuario : particion optima + perdida
+
+@enduml

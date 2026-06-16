@@ -1,4 +1,4 @@
-from src.main import iniciar
+from KQNodes.src.main import main as iniciar
 
 
 def main():

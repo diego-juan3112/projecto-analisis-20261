@@ -1,0 +1,52 @@
+@startuml paquetes
+title KQNodes — Diagrama de Paquetes (estructura real del proyecto)
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam defaultFontName Calibri
+
+package "KQNodes/src" {
+  package "Entrada (CLI)" {
+    component "main.py\n(args: --k, --max-time)" as MAIN
+  }
+  package "strategies" {
+    component "kqnodes.py (*)\nKQNodes (Queyranne k>=2)" as KQNODES
+    component "q_nodes.py\nQNodes (k=2)" as QNODES
+    component "geometric.py\nGeometricSIA (k=2)" as GEOMIP
+  }
+}
+
+package "shared_src" {
+  package "models/base" {
+    component "sia.py\nSIA (clase base abstracta)" as SIA
+  }
+  package "models/core" {
+    component "system.py\nSystem" as SYSTEM
+    component "ncube.py\nNCube" as NCUBE
+    component "solution.py\nSolution" as SOLUTION
+  }
+  package "funcs" {
+    component "iit.py\n(emd_efecto, reindexar,\nhamming)" as IIT
+  }
+  package "controllers" {
+    component "manager.py\nManager (carga TPM .csv)" as MANAGER
+  }
+}
+
+package "KQNodes/tests" {
+  component "test_kqnodes.py (*)\n(5 casos de prueba)" as TESTS
+}
+
+MAIN --> MANAGER
+MAIN --> KQNODES
+KQNODES ..> SIA : hereda
+QNODES ..> SIA : hereda
+GEOMIP ..> SIA : hereda
+KQNODES --> SYSTEM
+KQNODES --> IIT
+KQNODES --> SOLUTION
+SIA --> SYSTEM
+SYSTEM --> NCUBE
+TESTS --> KQNODES
+
+@enduml

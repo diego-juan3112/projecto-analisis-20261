@@ -54,7 +54,18 @@ class Manager:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def cargar_red(self) -> np.ndarray:
-        dataset = np.genfromtxt(self.tpm_filename, delimiter=COLON_DELIM)
+        # `pandas.read_csv` usa un parser en C cuyo pico de memoria es ~= al
+        # array final, frente a `np.genfromtxt`, que construye listas de Python
+        # intermedias y consume varias veces ese tamaño (MemoryError en redes
+        # grandes como N=22: ~1.15 GB en disco / ~738 MB en RAM).
+        import pandas as pd  # noqa: PLC0415
+
+        dataset = pd.read_csv(
+            self.tpm_filename,
+            sep=COLON_DELIM,
+            header=None,
+            dtype=np.float64,
+        ).to_numpy()
         return dataset
 
     def generar_red(self, dimensiones: int, datos_deterministas: bool = True) -> str:
