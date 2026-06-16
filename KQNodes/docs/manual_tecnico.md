@@ -918,3 +918,46 @@ Los números dependen fuertemente de cuántas particiones candidatas se reutiliz
 | K1+K2+K3+K5 + K4 (2 workers) | ~1–4 min | ~25–100 min |
 
 > Las estimaciones son conservadoras para subsistemas completos (alcance = todos los nodos). Los casos con alcance parcial son significativamente más rápidos porque `n_ss` es menor y el número de evaluaciones de Queyranne escala como n_ss³.
+
+## Anexo D — Cobertura experimental y limitaciones de hardware
+
+El conjunto de pruebas de `docs/DatosPruebas2026_1.xlsx` incluye redes de 10, 15, 20, 22 y 25 elementos. No todos los casos pudieron ejecutarse en el equipo de desarrollo por límites de **memoria** y **tiempo**. Esta sección documenta la causa, las mitigaciones aplicadas y la cobertura realmente alcanzada.
+
+### D.1 Causa raíz — costo exponencial en N
+
+El problema es intrínsecamente exponencial: un sistema de `N` nodos tiene `2^N` estados, por lo que la TPM tiene `2^N` filas × `N` columnas. Cada elemento adicional **duplica** (como mínimo) la memoria y el tiempo necesarios. Esto se refleja directamente en el tamaño de los archivos de muestra (CSV de la TPM):
+
+| N | Estados (2^N) | Tamaño TPM (CSV) |
+| --- | --- | --- |
+| 10 | 1 024 | ~21 KB |
+| 15 | 32 768 | ~5 MB |
+| 20 | 1 048 576 | ~273 MB |
+| 22 | 4 194 304 | ~1.2 GB |
+| 25 | 33 554 432 | ~10.9 GB |
+
+### D.2 Límite de memoria (RAM)
+
+Equipo de referencia: **AMD 3020e (2 núcleos físicos a 1.2 GHz), RAM física limitada (~6 GB, con ~1.7 GB libres durante la ejecución)**.
+
+- Cargar la TPM de N=22 con el método original (`np.genfromtxt` en `sia_cargar_tpm`) provocaba **`MemoryError`**: ese parser construye listas de Python y su pico de RAM es ~5–10× el tamaño del archivo (>6 GB para 1.2 GB de CSV).
+- **Mitigación aplicada** (`scripts/fill_excel_geomip.py`): se reemplazó la carga por `pandas.read_csv(..., dtype=np.float32)` (parser en C, pico bajo). `float32` es numéricamente idéntico a lo que `System` ya hace internamente (`system.py`, conversión `astype(np.float32)`). Además se limita a **1 worker para N≥22**, evitando dos copias simultáneas de la TPM en memoria.
+- Con esto N=22 deja de fallar por memoria, pero **N=25 sigue siendo inviable** en este hardware: solo el arreglo final en `float32` ocupa `2^25 × 25 × 4 bytes ≈ 3.3 GB`, que ya excede la RAM libre, sin contar los n-cubos derivados ni el sistema operativo.
+
+### D.3 Límite de tiempo
+
+Cada caso se ejecuta con un timeout de **1 hora** (`MAX_TIME_SEG = 3600 s`). Si se supera, el script escribe `TIMEOUT` en la celda y continúa con el siguiente caso (las celdas en `TIMEOUT` se reintentan en corridas posteriores). Para N grande, un único caso puede acercarse o superar ese límite, de modo que completar las ~50 pruebas de una hoja tomaría **días** en este equipo.
+
+### D.4 Cobertura realmente alcanzada
+
+| Hoja | N | k=2 QNodes | k=2 Geometric | k=3 / k=4 / k=5 (KQNodes) | Estado |
+| --- | --- | --- | --- | --- | --- |
+| 10A | 10 | 49/49 | 49/49 | 49 / 49 / 49 | ✅ Completo |
+| 15B | 15 | 50/50 | 50/50 | 50 / 50 / 50 | ✅ Completo |
+| 20A | 20 | 50/50 | 50/50 | 50 / 49 (1 timeout) / 50 | ✅ Prácticamente completo |
+| 22A | 22 | 32/50 | 50/50 | 0 / 0 / 0 | ⚠️ Parcial |
+| 25A | 25 | 0/50 | 0/50 | 0 / 0 / 0 | ❌ No ejecutado |
+
+### D.5 Reproducibilidad y cómo completar lo pendiente
+
+- Los resultados de **10, 15 y 20 elementos están completos** y se analizan en la hoja **«Análisis 10-15-20»** del Excel (tablas de φ y tiempos, comparación QNodes vs Geometric y crecimiento por k).
+- Para completar **22A** y **25A** se requiere un equipo con **más RAM (≥16–32 GB)** y, preferiblemente, más núcleos; alternativamente subir el timeout y procesar por lotes. El script `fill_excel_geomip.py` reintenta automáticamente las celdas marcadas `TIMEOUT`, por lo que la corrida puede reanudarse sin perder el progreso ya escrito.

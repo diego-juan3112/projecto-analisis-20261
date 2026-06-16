@@ -385,3 +385,33 @@ Construir esa tabla implicaba un doble bucle en Python y reservar memoria para n
 | K1+K2+K3 + paralelo (2 workers) | ~1–4 min | ~25–100 min |
 
 > Los casos con alcance parcial (no todos los nodos) terminan significativamente más rápido porque el tamaño efectivo del subsistema es menor.
+
+## Anexo D — Por qué no se ejecutaron todos los casos del Excel
+
+Las pruebas de `docs/DatosPruebas2026_1.xlsx` cubren redes de 10, 15, 20, 22 y 25 elementos. No fue posible ejecutar todos los casos en el equipo de pruebas; aquí se explica por qué.
+
+### D.1 El costo crece de forma exponencial
+
+El esfuerzo para calcular φ crece exponencialmente con el número de elementos `N`: una red de `N` nodos tiene `2^N` estados posibles, así que **cada elemento extra duplica (o más) la memoria y el tiempo** necesarios. Esto se ve directamente en el tamaño de los archivos de datos (la TPM):
+
+| Red (N) | Tamaño del archivo de datos |
+| --- | --- |
+| 10 elementos | ~21 KB |
+| 15 elementos | ~5 MB |
+| 20 elementos | ~273 MB |
+| 22 elementos | ~1.2 GB |
+| 25 elementos | ~10.9 GB |
+
+### D.2 Las limitaciones del equipo
+
+El computador usado para las pruebas (**AMD 3020e, 2 núcleos, RAM limitada**) no alcanza para los casos más grandes:
+
+- **10, 15 y 20 elementos:** se completaron (con un único caso en *timeout* para k=4 en la red de 20).
+- **22 elementos:** se completó **parcialmente** — la bipartición *Geometric* (50/50) y parte de la bipartición *QNodes* (32/50); las particiones de k=3 a k=5 quedaron pendientes.
+- **25 elementos:** **no fue posible ejecutarlo**; el archivo de datos por sí solo (10.9 GB) ya no cabe en la memoria del equipo.
+
+### D.3 Qué se hizo y qué haría falta
+
+Para aprovechar el equipo al máximo se optimizó la carga de datos (formato más liviano, *float32*) y se limitó la ejecución a **un proceso a la vez** en las redes grandes para no agotar la memoria. Aun así, **completar 22 y 25 elementos requiere un computador con más RAM (16 GB o más)** y, de preferencia, más núcleos.
+
+Los resultados de **10, 15 y 20 elementos** —que sí están completos— se encuentran analizados en la hoja **«Análisis 10-15-20»** del mismo Excel, con sus tablas, gráficos e interpretación.
