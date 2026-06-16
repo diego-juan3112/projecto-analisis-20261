@@ -1,0 +1,13 @@
+ABC_START = "A"
+COLON_DELIM = ','
+CSV_EXTENSION = 'csv'
+PATH_SAMPLES = 'src/.samples'
+PATH_RESOLVER = 'review/resolver'
+BASE_TWO = 2
+COLS_IDX = 1
+FLOAT_ZERO = 0.0
+INT_ZERO = 0
+WHITESPACE = ' '
+ACTIVE = True
+INACTIVE = False
+STR_ZERO = '0'

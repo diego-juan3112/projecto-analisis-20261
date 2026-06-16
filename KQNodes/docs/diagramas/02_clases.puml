@@ -1,0 +1,107 @@
+@startuml clases
+title KQNodes — Diagrama de Clases (fiel al código)
+skinparam shadowing false
+skinparam defaultFontName Calibri
+skinparam classAttributeIconSize 0
+
+abstract class SIA {
+  +tpm : ndarray
+  +sia_subsistema : System
+  +sia_dists_marginales : ndarray
+  +sia_tiempo_inicio : float
+  +__init__(tpm)
+  +{abstract} aplicar_estrategia()
+  +sia_preparar_subsistema(estado_inicial, condicion, alcance, mecanismo)
+  +chequear_parametros(estado_inicial, candidato, futuro, presente) bool
+}
+
+class KQNodes {
+  -gestor : Manager
+  -k : int
+  -refinar : bool
+  -verbose : bool
+  -max_tiempo_seg : float
+  -hubo_timeout : bool
+  -_memo_marginal : dict
+  -_memo_perdida_final : dict
+  +__init__(gestor, k, refinar, verbose, max_tiempo_seg)
+  +aplicar_estrategia() Solution
+  -_queyranne_iterativo() List<frozenset>
+  -_refinamiento_divisivo() List<frozenset>
+  -_evaluar_perdida_restringida(S, V_res, partes_fijas) float
+  -_calcular_perdida_final(partes) float
+  -_intercambio_local(partes) List<frozenset>
+  -_validar_particion(partes) bool
+  -_construir_resultado(partes, perdida, tiempo_ms) Solution
+  -_format_partition_letters(partes) str
+}
+
+class QNodes {
+  +aplicar_estrategia(estado, condicion, alcance, mecanismo) Solution
+  -algorithm(vertices)
+  -funcion_submodular(deltas, omegas)
+}
+
+class GeometricSIA {
+  +aplicar_estrategia(condicion, alcance, mecanismo, tpm) Solution
+  -find_mip()
+  -calcular_costo(estado_inicial, estado_final)
+  -identificar_particiones_optimas()
+}
+
+class System {
+  +ncubos : tuple<NCube>
+  +estado_inicial : ndarray
+  +memo : dict
+  +indices_ncubos : ndarray
+  +dims_ncubos : ndarray
+  +__init__(tpm, estado_inicio)
+  +condicionar(indices) System
+  +substraer(alcance_idx, mecanismo_dims) System
+  +bipartir(alcance, mecanismo) System
+  +distribucion_marginal() ndarray
+}
+
+class NCube <<dataclass>> {
+  +indice : int
+  +dims : ndarray
+  +data : ndarray
+  +memo : dict
+  +condicionar(indices, estado_inicial) NCube
+  +marginalizar(ejes) NCube
+}
+
+class Solution {
+  +estrategia : str
+  +perdida : float
+  +distribucion_subsistema : ndarray
+  +distribucion_particion : ndarray
+  +particion : List<frozenset>
+  +tiempo_ejecucion : float
+  +__str__() str
+  +__repr__() str
+}
+
+class Manager {
+  +estado_inicial : str
+  +ruta_base : Path
+  +pagina : str
+  +cargar_red() ndarray
+  +preparar_directorio_salida()
+}
+
+SIA <|-- KQNodes
+SIA <|-- QNodes
+SIA <|-- GeometricSIA
+SIA *-- System : sia_subsistema
+System "1" o-- "*" NCube : ncubos
+KQNodes --> Manager : gestor
+KQNodes ..> Solution : produce
+
+note bottom of SIA
+  emd_efecto() vive en funcs/iit.py
+  (función, no clase). KQNodes la usa
+  para medir la pérdida (EMD).
+end note
+
+@enduml

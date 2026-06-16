@@ -1,0 +1,46 @@
+{
+  "N15B.csv": {
+    "csv_bytes": 1015808,
+    "n": 15,
+    "genfromtxt_s": 0.118,
+    "array_float64_MB": 3.8,
+    "read_csv_float32_s": 0.021,
+    "array_float32_MB": 1.9,
+    "npy_save_s": 0.003,
+    "npy_bytes": 1966208,
+    "npy_load_s": 0.0131,
+    "npy_mmap_open_s": 0.00149,
+    "npy_mmap_lectura_total_s": 0.001,
+    "es_binaria": true,
+    "array_int8_MB": 0.5,
+    "packbits_MB": 0.06,
+    "pickle_float64_s": 0.001,
+    "pickle_float32_s": 0.0
+  },
+  "N20A.csv": {
+    "csv_bytes": 42991616,
+    "n": 20,
+    "genfromtxt_s": 4.838,
+    "array_float64_MB": 160.0,
+    "read_csv_float32_s": 0.661,
+    "array_float32_MB": 80.0,
+    "npy_save_s": 0.078,
+    "npy_bytes": 83886208,
+    "npy_load_s": 0.0403,
+    "npy_mmap_open_s": 0.00078,
+    "npy_mmap_lectura_total_s": 0.032,
+    "es_binaria": true,
+    "array_int8_MB": 20.0,
+    "packbits_MB": 2.5,
+    "pickle_float64_s": 0.033,
+    "pickle_float32_s": 0.017
+  },
+  "N25A_proyeccion": {
+    "csv_bytes": 1711276032,
+    "array_float64_MB": 6400.0,
+    "array_float32_MB": 3200.0,
+    "array_int8_MB": 800.0,
+    "packbits_MB": 100.0,
+    "nota": "float64 via genfromtxt + copia pickle a subproceso = 2 x 6.7 GB; inviable en 16 GB"
+  }
+}
