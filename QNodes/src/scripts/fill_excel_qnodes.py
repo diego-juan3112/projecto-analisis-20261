@@ -1,8 +1,8 @@
 """
-Rellena columnas de resultados QNodes (k dinámico: 2, 3, 4, 5) en DatosPruebas2026_1JSME.xlsx.
+Rellena columnas de resultados QNodes (k=2) en DatosPruebas2026_1.xlsx.
 
 Uso:
-    uv run python QNodes\src\scripts\fill_excel_qnodes.py
+    uv run python src\scripts\fill_excel_qnodes.py
 
 Configura las constantes de la sección CONFIGURACIÓN antes de ejecutar.
 """
@@ -25,18 +25,20 @@ from src.strategies.q_nodes import QNodes
 
 # ========================= CONFIGURACIÓN =========================
 EXCEL_PATH   = QNODES_SRC / ".samples" / "DatosPruebas2026_1JSME.xlsx"
-SHEET_NAME   = "10A-Elementos"  # Recuerda cambiar a "10A-Elementos" o "15B-Elementos" para pruebas rápidas
+SHEET_NAME   = "20A-Elementos"
 MAX_TIME_SEG = 3000.0   # referencia informativa; QNodes no tiene timeout explícito
 
-# --- CONFIGURACIÓN DE PARTICIONES (K) ---
-K = 3  # <--- CAMBIA AQUÍ EL VALOR: Puede ser 3, 4 o 5
-
-# Cálculo automático de columna destino (1-based) según el grupo de K:
-#   k=2 QNodes    → cols  4,  5,  6  (D, E, F)
+# Columna destino en Excel (1-based).
+# Estructura por grupo de 3 cols: Partición | Pérdida | Tiempo
+#   k=2 QNodes    → cols  4,  5,  6  (D, E, F)   ← activo
+#   k=2 Geometric → cols  7,  8,  9  (G, H, I)
 #   k=3 QNodes    → cols 10, 11, 12  (J, K, L)
+#   k=3 Geometric → cols 13, 14, 15  (M, N, O)
 #   k=4 QNodes    → cols 16, 17, 18  (P, Q, R)
+#   k=4 Geometric → cols 19, 20, 21  (S, T, U)
 #   k=5 QNodes    → cols 22, 23, 24  (V, W, X)
-COL_INICIO = 4 + (K - 2) * 6
+#   k=5 Geometric → cols 25, 26, 27  (Y, Z, AA)
+COL_INICIO = 4   # primera columna del grupo (Partición)
 
 SAMPLE_PATH     = QNODES_SRC / ".samples"
 HEADER_ROW      = 5      # fila de encabezados de columnas en el Excel
@@ -115,7 +117,7 @@ def configurar_pagina(sheet_name: str) -> None:
 def main() -> None:
     print(f"Excel  : {EXCEL_PATH}")
     print(f"Hoja   : {SHEET_NAME}")
-    print(f"k      : {K}  ({K}-partición QNodes)")
+    print(f"k      : 2  (bipartición QNodes)")
     print(f"Cols   : {COL_INICIO}–{COL_INICIO + 2} (Partición, Pérdida, Tiempo)")
     print()
 
@@ -161,22 +163,22 @@ def main() -> None:
             f"Mecanismo={caso['mecanismo_letras']}"
         )
 
-        # Filtro de seguridad para la hoja de 25 elementos (Evita MemoryError inmediato)
+        # === AGREGA ESTE FILTRO TEMPORAL AQUÍ ===
         if len(caso["alcance_letras"]) == 25 and len(caso["mecanismo_letras"]) == 25:
-            print(f"  → Saltando fila 6 (25x25) temporalmente por alta demanda de RAM.\n")
+            print("  → Saltando fila 6 (25x25) temporalmente por alta demanda de RAM.\n")
             continue
+        # ========================================
 
         if caso["row_idx"] in filas_rellenas:
             print("  → ya relleno, omitiendo\n")
             continue
 
         try:
-            # 1. Crear la instancia normal (sin el parámetro k aquí)
+            # Crear nueva instancia por caso para evitar memoria residual entre ejecuciones
             q = QNodes(tpm)
 
-            # 2. Pasar el parámetro k=K directamente al método de la estrategia
             resultado = q.aplicar_estrategia(
-                estado_inicial, condiciones, alcance_bin, mecanismo_bin, k=K
+                estado_inicial, condiciones, alcance_bin, mecanismo_bin
             )
 
             particion_str = str(resultado.particion)
@@ -208,7 +210,7 @@ def main() -> None:
             sys.exit(1)
 
     print("=" * 70)
-    print(f"Completado. {len(casos)} casos escritos en '{SHEET_NAME}', cols k={K} QNodes.")
+    print(f"Completado. {len(casos)} casos escritos en '{SHEET_NAME}', cols k=2 QNodes.")
 
 
 if __name__ == "__main__":
