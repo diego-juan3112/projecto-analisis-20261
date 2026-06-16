@@ -20,6 +20,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    # comando para ejecutar uv run python src/main.py --k 3 --max-time 300
+
     # Fixed configuration requested by user
     estado_inicial = "1000000000"
     condiciones = "1111111111"
