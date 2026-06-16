@@ -106,3 +106,6 @@ CLAUDE.md
 # Misc
 # -------------------------------------------------------------
 .dist/
+QNodes/src/.samples/N20A.csv
+QNodes/src/.samples/N22A.csv
+QNodes/src/.samples/N25A.csv
