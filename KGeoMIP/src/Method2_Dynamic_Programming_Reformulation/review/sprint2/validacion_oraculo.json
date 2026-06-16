@@ -1,0 +1,171 @@
+{
+  "marginalizacion": "OK",
+  "endianness": "OK",
+  "casos": [
+    {
+      "red": "N3A.csv",
+      "alcance": "111",
+      "mecanismo": "111",
+      "estatus": "OK",
+      "phi_oraculo": 0.25,
+      "phi_optimizada": 0.25,
+      "t_oraculo_s": 0.0037,
+      "t_optimizada_s": 0.0023,
+      "particion_igual": true
+    },
+    {
+      "red": "N4A.csv",
+      "alcance": "1111",
+      "mecanismo": "1111",
+      "estatus": "OK",
+      "phi_oraculo": 0.25,
+      "phi_optimizada": 0.25,
+      "t_oraculo_s": 0.0034,
+      "t_optimizada_s": 0.0026,
+      "particion_igual": true
+    },
+    {
+      "red": "N4B.csv",
+      "alcance": "0111",
+      "mecanismo": "1111",
+      "estatus": "OK",
+      "phi_oraculo": 0.0,
+      "phi_optimizada": 0.0,
+      "t_oraculo_s": 0.0037,
+      "t_optimizada_s": 0.0035,
+      "particion_igual": true
+    },
+    {
+      "red": "N5A.csv",
+      "alcance": "11111",
+      "mecanismo": "11111",
+      "estatus": "OK",
+      "phi_oraculo": 0.0,
+      "phi_optimizada": 0.0,
+      "t_oraculo_s": 0.0041,
+      "t_optimizada_s": 0.0033,
+      "particion_igual": true
+    },
+    {
+      "red": "N5B.csv",
+      "alcance": "11111",
+      "mecanismo": "01111",
+      "estatus": "OK",
+      "phi_oraculo": 0.125,
+      "phi_optimizada": 0.125,
+      "t_oraculo_s": 0.0032,
+      "t_optimizada_s": 0.0047,
+      "particion_igual": true
+    },
+    {
+      "red": "N6A.csv",
+      "alcance": "101011",
+      "mecanismo": "111111",
+      "estatus": "OK",
+      "phi_oraculo": 0.40625,
+      "phi_optimizada": 0.40625,
+      "t_oraculo_s": 0.005,
+      "t_optimizada_s": 0.004,
+      "particion_igual": true
+    },
+    {
+      "red": "N6A.csv",
+      "alcance": "111111",
+      "mecanismo": "111111",
+      "estatus": "OK",
+      "phi_oraculo": 0.4375,
+      "phi_optimizada": 0.4375,
+      "t_oraculo_s": 0.0053,
+      "t_optimizada_s": 0.0049,
+      "particion_igual": true
+    },
+    {
+      "red": "N8A.csv",
+      "alcance": "11111111",
+      "mecanismo": "11111111",
+      "estatus": "OK",
+      "phi_oraculo": 0.0,
+      "phi_optimizada": 0.0,
+      "t_oraculo_s": 0.0145,
+      "t_optimizada_s": 0.0075,
+      "particion_igual": true
+    },
+    {
+      "red": "N8A.csv",
+      "alcance": "11011011",
+      "mecanismo": "10101010",
+      "estatus": "OK",
+      "phi_oraculo": 0.0,
+      "phi_optimizada": 0.0,
+      "t_oraculo_s": 0.0053,
+      "t_optimizada_s": 0.0048,
+      "particion_igual": true
+    },
+    {
+      "red": "N10A.csv",
+      "alcance": "1111111111",
+      "mecanismo": "1111111111",
+      "estatus": "OK",
+      "phi_oraculo": 0.47265625,
+      "phi_optimizada": 0.47265625,
+      "t_oraculo_s": 0.0444,
+      "t_optimizada_s": 0.0125,
+      "particion_igual": true
+    },
+    {
+      "red": "N10A.csv",
+      "alcance": "1111111111",
+      "mecanismo": "1111111110",
+      "estatus": "OK",
+      "phi_oraculo": 0.0048828125,
+      "phi_optimizada": 0.0048828125,
+      "t_oraculo_s": 0.0246,
+      "t_optimizada_s": 0.0109,
+      "particion_igual": true
+    },
+    {
+      "red": "N10A.csv",
+      "alcance": "0101010101",
+      "mecanismo": "1111111111",
+      "estatus": "OK",
+      "phi_oraculo": 0.484375,
+      "phi_optimizada": 0.484375,
+      "t_oraculo_s": 0.0321,
+      "t_optimizada_s": 0.0081,
+      "particion_igual": true
+    },
+    {
+      "red": "N10A.csv",
+      "alcance": "1111111111",
+      "mecanismo": "1010101010",
+      "estatus": "OK",
+      "phi_oraculo": 0.015625,
+      "phi_optimizada": 0.015625,
+      "t_oraculo_s": 0.0153,
+      "t_optimizada_s": 0.0092,
+      "particion_igual": true
+    },
+    {
+      "red": "N15B.csv",
+      "alcance": "111111111111111",
+      "mecanismo": "111111111111000",
+      "estatus": "OK",
+      "phi_oraculo": 0.001220703125,
+      "phi_optimizada": 0.001220703125,
+      "t_oraculo_s": 0.222,
+      "t_optimizada_s": 0.0295,
+      "particion_igual": true
+    },
+    {
+      "red": "N15B.csv",
+      "alcance": "110110110110110",
+      "mecanismo": "101010101010101",
+      "estatus": "OK",
+      "phi_oraculo": 0.006591796875,
+      "phi_optimizada": 0.006591796875,
+      "t_oraculo_s": 0.0212,
+      "t_optimizada_s": 0.0158,
+      "particion_igual": true
+    }
+  ]
+}

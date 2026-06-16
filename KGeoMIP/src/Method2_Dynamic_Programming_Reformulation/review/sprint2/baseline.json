@@ -1,0 +1,67 @@
+[
+  {
+    "red": "N5A.csv",
+    "descripcion": "n=5 completo",
+    "condicion": "11111",
+    "alcance": "11111",
+    "mecanismo": "11111",
+    "particion": "|  A,B,C,E  || D |\n| a,b,c,d,e || ∅ |",
+    "perdida": 0.0,
+    "tiempo_s": 0.0036165999990771525,
+    "pico_memoria_MB": 0.032876014709472656,
+    "n_estados_tabla": 32,
+    "tiempo_con_tracemalloc_s": 0.01078129999950761
+  },
+  {
+    "red": "N10A.csv",
+    "descripcion": "n=9 (mecanismo reducido)",
+    "condicion": "1111111111",
+    "alcance": "1111111111",
+    "mecanismo": "1111111110",
+    "particion": "| A,B,C,D,E,F,H,I,J || G |\n| a,b,c,d,e,f,g,h,i || ∅ |",
+    "perdida": 0.0048828125,
+    "tiempo_s": 0.0342142999979842,
+    "pico_memoria_MB": 0.39122867584228516,
+    "n_estados_tabla": 512,
+    "tiempo_con_tracemalloc_s": 0.1208524000030593
+  },
+  {
+    "red": "N10A.csv",
+    "descripcion": "n=10 completo",
+    "condicion": "1111111111",
+    "alcance": "1111111111",
+    "mecanismo": "1111111111",
+    "particion": "|  A,B,C,D,E,F,G,H,J  || I |\n| a,b,c,d,e,f,g,h,i,j || ∅ |",
+    "perdida": 0.47265625,
+    "tiempo_s": 0.04835340000136057,
+    "pico_memoria_MB": 0.7295427322387695,
+    "n_estados_tabla": 1024,
+    "tiempo_con_tracemalloc_s": 0.24041010000291863
+  },
+  {
+    "red": "N15B.csv",
+    "descripcion": "n=12 (mecanismo reducido)",
+    "condicion": "111111111111111",
+    "alcance": "111111111111111",
+    "mecanismo": "111111111111000",
+    "particion": "| B,C,D,E,F,G,H,I,J,K,L,M,N,O || A |\n|   a,b,c,d,e,f,g,h,i,j,k,l   || ∅ |",
+    "perdida": 0.001220703125,
+    "tiempo_s": 0.22393100000044797,
+    "pico_memoria_MB": 4.434624671936035,
+    "n_estados_tabla": 4096,
+    "tiempo_con_tracemalloc_s": 1.25492469999881
+  },
+  {
+    "red": "N15B.csv",
+    "descripcion": "n=15 completo",
+    "condicion": "111111111111111",
+    "alcance": "111111111111111",
+    "mecanismo": "111111111111111",
+    "particion": "|  A,B,C,D,E,F,G,H,I,J,L,M,N,O  || K |\n| a,b,c,d,e,f,g,h,i,j,k,l,m,n,o || ∅ |",
+    "perdida": 0.496246337890625,
+    "tiempo_s": 2.3653474999991886,
+    "pico_memoria_MB": 40.25367259979248,
+    "n_estados_tabla": 32768,
+    "tiempo_con_tracemalloc_s": 11.820720399999118
+  }
+]

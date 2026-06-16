@@ -1,0 +1,12 @@
+[
+  {
+    "red": "N25A.csv",
+    "descripcion": "n=25 completo",
+    "mecanismo": "1111111111111111111111111",
+    "particion": "|  A,B,C,D,E,F,G,H,I,J,K,M,N,O,P,Q,R,S,T,U,V,W,X,Y  || L |\n| a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y || ∅ |",
+    "perdida": 0.49980735778808594,
+    "tiempo_s": 395.5731639000005,
+    "tiempo_carga_tpm_s": 29.11769439999989,
+    "pico_memoria_MB": null
+  }
+]

@@ -1,0 +1,345 @@
+{
+  "k2": [
+    {
+      "red": "N3A.csv",
+      "alcance": "111",
+      "mecanismo": "111",
+      "estatus": "OK",
+      "phi_geometric": 0.25,
+      "phi_kgeo": 0.25,
+      "t_geometric_s": 0.0025,
+      "t_kgeo_s": 0.002
+    },
+    {
+      "red": "N4A.csv",
+      "alcance": "1111",
+      "mecanismo": "1111",
+      "estatus": "OK",
+      "phi_geometric": 0.25,
+      "phi_kgeo": 0.25,
+      "t_geometric_s": 0.0023,
+      "t_kgeo_s": 0.0033
+    },
+    {
+      "red": "N4B.csv",
+      "alcance": "0111",
+      "mecanismo": "1111",
+      "estatus": "OK",
+      "phi_geometric": 0.0,
+      "phi_kgeo": 0.0,
+      "t_geometric_s": 0.0021,
+      "t_kgeo_s": 0.0022
+    },
+    {
+      "red": "N5A.csv",
+      "alcance": "11111",
+      "mecanismo": "11111",
+      "estatus": "OK",
+      "phi_geometric": 0.0,
+      "phi_kgeo": 0.0,
+      "t_geometric_s": 0.0034,
+      "t_kgeo_s": 0.0031
+    },
+    {
+      "red": "N5B.csv",
+      "alcance": "11111",
+      "mecanismo": "01111",
+      "estatus": "OK",
+      "phi_geometric": 0.125,
+      "phi_kgeo": 0.125,
+      "t_geometric_s": 0.0032,
+      "t_kgeo_s": 0.0038
+    },
+    {
+      "red": "N6A.csv",
+      "alcance": "101011",
+      "mecanismo": "111111",
+      "estatus": "OK",
+      "phi_geometric": 0.40625,
+      "phi_kgeo": 0.40625,
+      "t_geometric_s": 0.0034,
+      "t_kgeo_s": 0.0039
+    },
+    {
+      "red": "N6A.csv",
+      "alcance": "111111",
+      "mecanismo": "111111",
+      "estatus": "OK",
+      "phi_geometric": 0.4375,
+      "phi_kgeo": 0.4375,
+      "t_geometric_s": 0.0047,
+      "t_kgeo_s": 0.0045
+    },
+    {
+      "red": "N8A.csv",
+      "alcance": "11111111",
+      "mecanismo": "11111111",
+      "estatus": "OK",
+      "phi_geometric": 0.0,
+      "phi_kgeo": 0.0,
+      "t_geometric_s": 0.0076,
+      "t_kgeo_s": 0.0092
+    },
+    {
+      "red": "N8A.csv",
+      "alcance": "11011011",
+      "mecanismo": "10101010",
+      "estatus": "OK",
+      "phi_geometric": 0.0,
+      "phi_kgeo": 0.0,
+      "t_geometric_s": 0.0048,
+      "t_kgeo_s": 0.0045
+    },
+    {
+      "red": "N10A.csv",
+      "alcance": "1111111111",
+      "mecanismo": "1111111111",
+      "estatus": "OK",
+      "phi_geometric": 0.47265625,
+      "phi_kgeo": 0.47265625,
+      "t_geometric_s": 0.0122,
+      "t_kgeo_s": 0.0109
+    },
+    {
+      "red": "N10A.csv",
+      "alcance": "1111111111",
+      "mecanismo": "1111111110",
+      "estatus": "OK",
+      "phi_geometric": 0.0048828125,
+      "phi_kgeo": 0.0048828125,
+      "t_geometric_s": 0.0109,
+      "t_kgeo_s": 0.0102
+    },
+    {
+      "red": "N10A.csv",
+      "alcance": "0101010101",
+      "mecanismo": "1111111111",
+      "estatus": "OK",
+      "phi_geometric": 0.484375,
+      "phi_kgeo": 0.484375,
+      "t_geometric_s": 0.0082,
+      "t_kgeo_s": 0.0086
+    },
+    {
+      "red": "N10A.csv",
+      "alcance": "1111111111",
+      "mecanismo": "1010101010",
+      "estatus": "OK",
+      "phi_geometric": 0.015625,
+      "phi_kgeo": 0.015625,
+      "t_geometric_s": 0.009,
+      "t_kgeo_s": 0.0071
+    },
+    {
+      "red": "N15B.csv",
+      "alcance": "111111111111111",
+      "mecanismo": "111111111111000",
+      "estatus": "OK",
+      "phi_geometric": 0.001220703125,
+      "phi_kgeo": 0.001220703125,
+      "t_geometric_s": 0.0273,
+      "t_kgeo_s": 0.0251
+    },
+    {
+      "red": "N15B.csv",
+      "alcance": "110110110110110",
+      "mecanismo": "101010101010101",
+      "estatus": "OK",
+      "phi_geometric": 0.006591796875,
+      "phi_kgeo": 0.006591796875,
+      "t_geometric_s": 0.0146,
+      "t_kgeo_s": 0.0176
+    }
+  ],
+  "fuerza_bruta": [
+    {
+      "red": "N3A.csv",
+      "alcance": "111",
+      "mecanismo": "111",
+      "k": 3,
+      "phi_greedy": 0.75,
+      "phi_optimo_bf": 0.5,
+      "gap_absoluto": 0.25,
+      "optimo_alcanzado": false,
+      "particiones_evaluadas_bf": 90,
+      "t_greedy_s": 0.0063,
+      "t_bf_s": 0.0015,
+      "poda_fase2": {
+        "evaluados": 6,
+        "poda_cota_cero": 2,
+        "poda_parcial": 6,
+        "poda_version": 0,
+        "movimientos": 0,
+        "pasadas": 1
+      }
+    },
+    {
+      "red": "N4A.csv",
+      "alcance": "1111",
+      "mecanismo": "1111",
+      "k": 3,
+      "phi_greedy": 0.75,
+      "phi_optimo_bf": 0.5,
+      "gap_absoluto": 0.25,
+      "optimo_alcanzado": false,
+      "particiones_evaluadas_bf": 966,
+      "t_greedy_s": 0.0081,
+      "t_bf_s": 0.0128,
+      "poda_fase2": {
+        "evaluados": 8,
+        "poda_cota_cero": 4,
+        "poda_parcial": 8,
+        "poda_version": 0,
+        "movimientos": 0,
+        "pasadas": 1
+      }
+    },
+    {
+      "red": "N4B.csv",
+      "alcance": "0111",
+      "mecanismo": "1111",
+      "k": 3,
+      "phi_greedy": 0.0,
+      "phi_optimo_bf": 0.0,
+      "gap_absoluto": 0.0,
+      "optimo_alcanzado": true,
+      "particiones_evaluadas_bf": 301,
+      "t_greedy_s": 0.0076,
+      "t_bf_s": 0.0051,
+      "poda_fase2": {
+        "evaluados": 0,
+        "poda_cota_cero": 12,
+        "poda_parcial": 0,
+        "poda_version": 0,
+        "movimientos": 0,
+        "pasadas": 1
+      }
+    },
+    {
+      "red": "N5A.csv",
+      "alcance": "11111",
+      "mecanismo": "11111",
+      "k": 3,
+      "phi_greedy": 0.0,
+      "phi_optimo_bf": 0.0,
+      "gap_absoluto": 0.0,
+      "optimo_alcanzado": true,
+      "particiones_evaluadas_bf": 9330,
+      "t_greedy_s": 0.0086,
+      "t_bf_s": 0.1095,
+      "poda_fase2": {
+        "evaluados": 0,
+        "poda_cota_cero": 16,
+        "poda_parcial": 0,
+        "poda_version": 0,
+        "movimientos": 0,
+        "pasadas": 1
+      }
+    },
+    {
+      "red": "N5B.csv",
+      "alcance": "11111",
+      "mecanismo": "01111",
+      "k": 3,
+      "phi_greedy": 0.375,
+      "phi_optimo_bf": 0.375,
+      "gap_absoluto": 0.0,
+      "optimo_alcanzado": true,
+      "particiones_evaluadas_bf": 3025,
+      "t_greedy_s": 0.0104,
+      "t_bf_s": 0.0354,
+      "poda_fase2": {
+        "evaluados": 8,
+        "poda_cota_cero": 6,
+        "poda_parcial": 8,
+        "poda_version": 0,
+        "movimientos": 0,
+        "pasadas": 1
+      }
+    },
+    {
+      "red": "N6A.csv",
+      "alcance": "111111",
+      "mecanismo": "111111",
+      "k": 3,
+      "phi_greedy": 0.90625,
+      "phi_optimo_bf": 0.90625,
+      "gap_absoluto": 0.0,
+      "optimo_alcanzado": true,
+      "particiones_evaluadas_bf": 86526,
+      "t_greedy_s": 0.0112,
+      "t_bf_s": 1.1021,
+      "poda_fase2": {
+        "evaluados": 12,
+        "poda_cota_cero": 8,
+        "poda_parcial": 12,
+        "poda_version": 0,
+        "movimientos": 0,
+        "pasadas": 1
+      }
+    },
+    {
+      "red": "N5A.csv",
+      "alcance": "11111",
+      "mecanismo": "11111",
+      "k": 4,
+      "phi_greedy": 0.25,
+      "phi_optimo_bf": 0.25,
+      "gap_absoluto": 0.0,
+      "optimo_alcanzado": true,
+      "particiones_evaluadas_bf": 34105,
+      "t_greedy_s": 0.0126,
+      "t_bf_s": 0.4096,
+      "poda_fase2": {
+        "evaluados": 4,
+        "poda_cota_cero": 17,
+        "poda_parcial": 4,
+        "poda_version": 0,
+        "movimientos": 0,
+        "pasadas": 1
+      }
+    },
+    {
+      "red": "N6A.csv",
+      "alcance": "101011",
+      "mecanismo": "111111",
+      "k": 3,
+      "phi_greedy": 0.484375,
+      "phi_optimo_bf": 0.484375,
+      "gap_absoluto": 0.0,
+      "optimo_alcanzado": true,
+      "particiones_evaluadas_bf": 9330,
+      "t_greedy_s": 0.0111,
+      "t_bf_s": 0.133,
+      "poda_fase2": {
+        "evaluados": 5,
+        "poda_cota_cero": 11,
+        "poda_parcial": 5,
+        "poda_version": 0,
+        "movimientos": 0,
+        "pasadas": 1
+      }
+    },
+    {
+      "red": "N10A.csv",
+      "alcance": "1110000000",
+      "mecanismo": "1100000000",
+      "k": 3,
+      "phi_greedy": 0.00390625,
+      "phi_optimo_bf": 0.00390625,
+      "gap_absoluto": 0.0,
+      "optimo_alcanzado": true,
+      "particiones_evaluadas_bf": 25,
+      "t_greedy_s": 0.0147,
+      "t_bf_s": 0.0006,
+      "poda_fase2": {
+        "evaluados": 2,
+        "poda_cota_cero": 4,
+        "poda_parcial": 2,
+        "poda_version": 0,
+        "movimientos": 0,
+        "pasadas": 1
+      }
+    }
+  ]
+}
